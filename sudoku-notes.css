@@ -1,0 +1,174 @@
+/* Row/column memo rails around Sudoku board */
+.sudokuMemoFrame{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  grid-template-rows:30px auto;
+  align-items:stretch;
+  gap:4px;
+  width:max-content;
+}
+.sudokuMemoCorner{
+  display:grid;
+  place-items:center;
+  color:var(--ref-brown2-600);
+  font-size:7px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.sudokuColMemoRail{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(34px,52px));
+  gap:0;
+}
+.sudokuRowMemoRail{
+  display:grid;
+  grid-template-rows:repeat(9,minmax(34px,52px));
+  gap:0;
+}
+.sudokuMemoSlot{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  min-width:0;
+  min-height:0;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:5px;
+  background:transparent;
+  color:var(--ref-brown2-600);
+  font:inherit;
+  cursor:pointer;
+  transition:background .12s ease,border-color .12s ease,color .12s ease;
+}
+.sudokuMemoSlot:hover{
+  background:var(--ref-brown2-100);
+  border-color:var(--ref-brown2-300);
+  color:var(--ref-brown2-900);
+}
+.sudokuMemoSlot.has-note{
+  background:var(--ref-green-100);
+  border-color:var(--ref-green-300);
+  color:var(--ref-green-900);
+}
+.sudokuMemoIndex{
+  font-size:8px;
+  font-weight:650;
+  line-height:1;
+}
+.sudokuMemoMark{
+  font-size:10px;
+  line-height:1;
+  font-weight:800;
+}
+.sudokuRowMemoRail .sudokuMemoSlot{
+  flex-direction:column;
+  gap:0;
+}
+.sudokuColMemoRail .sudokuMemoSlot{
+  flex-direction:row;
+}
+
+.sudokuMemoPopover{
+  position:fixed;
+  z-index:2000;
+  width:260px;
+  padding:10px;
+  border:1px solid var(--ref-brown2-400);
+  border-radius:10px;
+  background:rgba(252,252,250,.98);
+  box-shadow:0 12px 32px rgba(53,39,25,.14),0 2px 8px rgba(53,39,25,.08);
+  backdrop-filter:blur(10px);
+}
+.sudokuMemoPopover[hidden]{display:none!important}
+.sudokuMemoPopoverHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+}
+.sudokuMemoPopoverTitle{
+  color:var(--ref-brown2-950);
+  font-size:11px;
+  font-weight:650;
+}
+.sudokuMemoClose{
+  width:24px;
+  height:24px;
+  padding:0;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:var(--ref-brown2-700);
+  font:inherit;
+  font-size:16px;
+  line-height:1;
+  cursor:pointer;
+}
+.sudokuMemoClose:hover{background:var(--ref-brown2-100);color:var(--ref-brown2-950)}
+.sudokuMemoInput{
+  width:100%;
+  min-height:88px!important;
+  resize:vertical;
+  padding:8px 9px!important;
+  border:1px solid var(--ref-brown2-300)!important;
+  border-radius:7px!important;
+  background:var(--ref-white)!important;
+  color:var(--ref-brown2-950)!important;
+  font-size:11px!important;
+  line-height:1.45;
+}
+.sudokuMemoPopoverFoot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:7px;
+}
+.sudokuMemoAutosave{
+  color:var(--ref-brown2-600);
+  font-size:9px;
+}
+.sudokuMemoClear{
+  min-height:25px;
+  padding:3px 7px;
+  border:1px solid var(--ref-brown2-300);
+  border-radius:6px;
+  background:var(--ref-white);
+  color:var(--ref-brown2-800);
+  font:inherit;
+  font-size:9px;
+  font-weight:600;
+  cursor:pointer;
+}
+.sudokuMemoClear:hover{background:var(--ref-brown2-100);color:var(--ref-red-900)}
+
+@media(max-width:540px){
+  .sudokuBoardShell{overflow-x:auto}
+  .sudokuMemoFrame{
+    grid-template-columns:24px minmax(0,1fr);
+    grid-template-rows:24px auto;
+    gap:3px;
+    width:100%;
+    min-width:0;
+  }
+  .sudokuColMemoRail{grid-template-columns:repeat(9,1fr)}
+  .sudokuRowMemoRail{grid-template-rows:repeat(9,1fr)}
+  .sudokuMemoIndex{font-size:7px}
+  .sudokuMemoMark{font-size:9px}
+  .sudokuMemoPopover{
+    width:auto;
+    max-width:none;
+    padding:11px;
+    border-radius:12px;
+    box-shadow:0 16px 42px rgba(53,39,25,.2);
+  }
+  .sudokuMemoInput{min-height:96px!important;font-size:12px!important}
+}
+
+@media print{
+  .sudokuMemoSlot,.sudokuMemoCorner{display:none!important}
+  .sudokuMemoFrame{display:block!important;width:auto!important}
+}
