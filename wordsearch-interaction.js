@@ -199,8 +199,6 @@
       clearPreview();
       paintPicked(false);
     });
-
-    document.getElementById("wsCancelSelection")?.addEventListener("click", () => resetPicked());
   };
 
   document.addEventListener("keydown", (event) => {
@@ -225,6 +223,7 @@
       cancelButton.className = "wsCancelSelection";
       cancelButton.hidden = true;
       cancelButton.textContent = "선택 취소";
+      cancelButton.addEventListener("click", () => resetPicked());
       status.insertAdjacentElement("afterend", cancelButton);
 
       if (!status.classList.contains("done")) {
