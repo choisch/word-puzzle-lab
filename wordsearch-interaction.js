@@ -39,18 +39,30 @@
       .forEach((cell) => cell.classList.remove("picked", "wrong-pick"));
   }
 
-  function paintPicked() {
+  function updateCancelButton() {
+    const button = document.getElementById("wsCancelSelection");
+    if (!button) return;
+    button.hidden = picked.length === 0;
+    button.textContent = picked.length ? `선택 취소 (${picked.length})` : "선택 취소";
+  }
+
+  function paintPicked(isWrong = false) {
     clearPreview();
     clearPickedVisual();
     for (const [r, c] of picked) {
-      document.querySelector(`.wsCell[data-r="${r}"][data-c="${c}"]`)?.classList.add("picked");
+      const cell = document.querySelector(`.wsCell[data-r="${r}"][data-c="${c}"]`);
+      cell?.classList.add("picked");
+      if (isWrong) cell?.classList.add("wrong-pick");
     }
+    updateCancelButton();
   }
 
-  function resetPicked() {
+  function resetPicked(message = "선택을 취소했습니다. 낱말을 이루는 글자를 하나씩 클릭하세요.") {
     picked = [];
     clearPreview();
     clearPickedVisual();
+    updateCancelButton();
+    if (message) setWsStatus(message);
   }
 
   function pulseFound(item) {
@@ -64,14 +76,6 @@
     });
   }
 
-  function markWrongAndReset() {
-    for (const [r, c] of picked) {
-      document.querySelector(`.wsCell[data-r="${r}"][data-c="${c}"]`)
-        ?.classList.add("wrong-pick");
-    }
-    setTimeout(() => resetPicked(), 420);
-  }
-
   function evaluatePicked() {
     if (!last || last.mode !== "wordsearch" || !picked.length) return;
     const puzzle = last.puzzle;
@@ -80,14 +84,15 @@
     if (exact) {
       if (exact.found) {
         setWsStatus(`이미 찾은 낱말이에요 · ${exact.word}`, "success");
-        resetPicked();
+        resetPicked("");
         return;
       }
 
       exact.found = true;
       const foundCount = puzzle.placed.filter((item) => item.found).length;
       const isComplete = foundCount === puzzle.placed.length;
-      resetPicked();
+      picked = [];
+      clearPickedVisual();
       renderWordSearch(puzzle, revealed);
       pulseFound(exact);
 
@@ -101,32 +106,34 @@
 
     const possible = puzzle.placed.filter((item) => !item.found && item.cells.length > picked.length && selectionIsSubsetOf(item));
     if (possible.length) {
-      const maxNeeded = Math.min(...possible.map((item) => item.cells.length));
-      setWsStatus(`${picked.length}칸 선택 · 이 낱말은 ${maxNeeded}글자입니다. 남은 글자를 계속 클릭하세요.`, "selecting");
-      paintPicked();
+      const minLength = Math.min(...possible.map((item) => item.cells.length));
+      setWsStatus(`${picked.length}칸 선택 · ${minLength}글자 낱말 후보가 있습니다. 계속 선택하거나 다시 눌러 취소하세요.`, "selecting");
+      paintPicked(false);
       return;
     }
 
-    setWsStatus("아니에요. 선택한 칸 조합으로 완성되는 낱말이 없습니다.", "error");
-    paintPicked();
-    markWrongAndReset();
+    setWsStatus("이 조합은 정답이 아닙니다. 잘못 고른 칸을 다시 누르거나 ‘선택 취소’를 누르세요.", "error");
+    paintPicked(true);
   }
 
   function togglePicked(coord) {
     const index = picked.findIndex((x) => sameCoord(x, coord));
-    if (index >= 0) picked.splice(index, 1);
-    else picked.push(coord);
 
-    if (!picked.length) {
-      resetPicked();
-      setWsStatus("선택을 취소했습니다. 낱말을 이루는 글자를 하나씩 클릭하세요.");
+    if (index >= 0) {
+      picked.splice(index, 1);
+      if (!picked.length) {
+        resetPicked();
+        return;
+      }
+      paintPicked(false);
+      evaluatePicked();
       return;
     }
+
+    picked.push(coord);
     evaluatePicked();
   }
 
-  /* Drag remains a shortcut: every cell in the dragged line is treated as a pick.
-     Matching is set-based, so order does not matter. */
   finishWsSelection = function finishWsSelectionAnyOrder(cells) {
     if (!last || last.mode !== "wordsearch" || cells.length < 2) return;
     picked = [];
@@ -190,9 +197,18 @@
     grid.addEventListener("pointercancel", () => {
       pointer = null;
       clearPreview();
-      paintPicked();
+      paintPicked(false);
     });
+
+    document.getElementById("wsCancelSelection")?.addEventListener("click", () => resetPicked());
   };
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && last?.mode === "wordsearch" && picked.length) {
+      event.preventDefault();
+      resetPicked();
+    }
+  });
 
   renderWordSearch = function renderWordSearchWithMultiClickCopy(puzzle, show) {
     baseRenderWordSearch(puzzle, show);
@@ -202,9 +218,19 @@
     if (stat) stat.textContent = "글자마다 클릭";
 
     const status = document.getElementById("wsStatus");
-    if (status && !status.classList.contains("done")) {
-      const foundCount = puzzle.placed.filter((item) => item.found).length;
-      status.textContent = `찾은 낱말 ${foundCount}/${puzzle.placed.length} · 낱말을 이루는 모든 칸을 하나씩 클릭하세요. 순서는 상관없습니다.`;
+    if (status) {
+      const cancelButton = document.createElement("button");
+      cancelButton.id = "wsCancelSelection";
+      cancelButton.type = "button";
+      cancelButton.className = "wsCancelSelection";
+      cancelButton.hidden = true;
+      cancelButton.textContent = "선택 취소";
+      status.insertAdjacentElement("afterend", cancelButton);
+
+      if (!status.classList.contains("done")) {
+        const foundCount = puzzle.placed.filter((item) => item.found).length;
+        status.textContent = `찾은 낱말 ${foundCount}/${puzzle.placed.length} · 낱말을 이루는 모든 칸을 하나씩 클릭하세요. 순서는 상관없습니다.`;
+      }
     }
   };
 })();
