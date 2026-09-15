@@ -24,6 +24,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Apply Prototype_share visual theme
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          link = '<link rel="stylesheet" href="./prototype-theme.css">'
+          if link not in s:
+              s = s.replace('</head>', f'{link}\n</head>')
+          p.write_text(s, encoding='utf-8')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
