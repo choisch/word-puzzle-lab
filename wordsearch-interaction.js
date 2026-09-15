@@ -1,6 +1,7 @@
 (() => {
   let picked = [];
-  let wordsHidden = false;
+  let wordsHidden = true;
+  let wordListPuzzle = null;
   const baseRenderWordSearch = renderWordSearch;
   const DRAG_THRESHOLD = 10;
 
@@ -89,7 +90,7 @@
     if (!side || !button) return;
 
     side.classList.toggle("words-hidden", wordsHidden);
-    button.textContent = wordsHidden ? "보기" : "숨기기";
+    button.textContent = wordsHidden ? "힌트 보기" : "힌트 닫기";
     button.setAttribute("aria-expanded", String(!wordsHidden));
     if (note) note.hidden = !wordsHidden;
   }
@@ -122,7 +123,7 @@
       note = document.createElement("div");
       note.id = "wsWordListHiddenNote";
       note.className = "wsWordListHiddenNote";
-      note.textContent = "찾을 낱말 목록을 숨겼습니다.";
+      note.textContent = "막히면 힌트를 열어 찾을 낱말을 확인하세요.";
       header.insertAdjacentElement("afterend", note);
     }
 
@@ -285,6 +286,11 @@
   });
 
   renderWordSearch = function renderWordSearchWithMultiClickCopy(puzzle, show) {
+    if (wordListPuzzle !== puzzle) {
+      wordListPuzzle = puzzle;
+      wordsHidden = true;
+    }
+
     baseRenderWordSearch(puzzle, show);
 
     const stat = [...document.querySelectorAll(".stats .stat")]
