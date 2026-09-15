@@ -30,9 +30,13 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          link = '<link rel="stylesheet" href="./prototype-theme.css">'
-          if link not in s:
-              s = s.replace('</head>', f'{link}\n</head>')
+          links = [
+              '<link rel="stylesheet" href="./prototype-theme.css">',
+              '<link rel="stylesheet" href="./field-layout.css">',
+          ]
+          for link in links:
+              if link not in s:
+                  s = s.replace('</head>', f'{link}\n</head>')
           p.write_text(s, encoding='utf-8')
           PY
 
