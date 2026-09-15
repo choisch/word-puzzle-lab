@@ -33,10 +33,14 @@ jobs:
           links = [
               '<link rel="stylesheet" href="./prototype-theme.css">',
               '<link rel="stylesheet" href="./field-layout.css">',
+              '<link rel="stylesheet" href="./wordsearch-interaction.css">',
           ]
           for link in links:
               if link not in s:
                   s = s.replace('</head>', f'{link}\n</head>')
+          script = '<script src="./wordsearch-interaction.js"></script>'
+          if script not in s:
+              s = s.replace('</body>', f'{script}\n</body>')
           p.write_text(s, encoding='utf-8')
           PY
 
