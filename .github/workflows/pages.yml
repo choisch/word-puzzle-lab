@@ -25,26 +25,51 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Apply Prototype_share visual theme
+        env:
+          BUILD_SHA: ${{ github.sha }}
         run: |
           python - <<'PY'
           from pathlib import Path
+          import os
+
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
+          version = os.environ.get('BUILD_SHA', 'latest')[:12]
+
+          cache_meta = '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n<meta http-equiv="Pragma" content="no-cache">\n<meta http-equiv="Expires" content="0">'
+          if 'http-equiv="Cache-Control"' not in s:
+              s = s.replace('<meta name="viewport" content="width=device-width,initial-scale=1">', '<meta name="viewport" content="width=device-width,initial-scale=1">\n' + cache_meta)
+
+          assets = [
+              ('css', './prototype-theme.css'),
+              ('css', './field-layout.css'),
+              ('css', './wordsearch-interaction.css'),
+              ('js', './wordsearch-interaction.js'),
+              ('js', './wordsearch-hint.js'),
+          ]
+
+          # Remove any previously injected unversioned/versioned references.
+          import re
+          for kind, path in assets:
+              escaped = re.escape(path)
+              if kind == 'css':
+                  s = re.sub(r'\s*<link rel="stylesheet" href="' + escaped + r'(?:\?v=[^"]+)?">', '', s)
+              else:
+                  s = re.sub(r'\s*<script src="' + escaped + r'(?:\?v=[^"]+)?"></script>', '', s)
+
           links = [
-              '<link rel="stylesheet" href="./prototype-theme.css">',
-              '<link rel="stylesheet" href="./field-layout.css">',
-              '<link rel="stylesheet" href="./wordsearch-interaction.css">',
+              f'<link rel="stylesheet" href="./prototype-theme.css?v={version}">',
+              f'<link rel="stylesheet" href="./field-layout.css?v={version}">',
+              f'<link rel="stylesheet" href="./wordsearch-interaction.css?v={version}">',
           ]
-          for link in links:
-              if link not in s:
-                  s = s.replace('</head>', f'{link}\n</head>')
+          s = s.replace('</head>', '\n'.join(links) + '\n</head>')
+
           scripts = [
-              '<script src="./wordsearch-interaction.js"></script>',
-              '<script src="./wordsearch-hint.js"></script>',
+              f'<script src="./wordsearch-interaction.js?v={version}"></script>',
+              f'<script src="./wordsearch-hint.js?v={version}"></script>',
           ]
-          for script in scripts:
-              if script not in s:
-                  s = s.replace('</body>', f'{script}\n</body>')
+          s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
+
           p.write_text(s, encoding='utf-8')
           PY
 
