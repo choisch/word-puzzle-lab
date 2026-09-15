@@ -1,5 +1,6 @@
 (() => {
   let picked = [];
+  let wordsHidden = false;
   const baseRenderWordSearch = renderWordSearch;
   const DRAG_THRESHOLD = 10;
 
@@ -81,6 +82,53 @@
     });
   }
 
+  function applyWordListVisibility() {
+    const side = document.querySelector(".wordSide");
+    const button = document.getElementById("wsToggleWords");
+    const note = document.getElementById("wsWordListHiddenNote");
+    if (!side || !button) return;
+
+    side.classList.toggle("words-hidden", wordsHidden);
+    button.textContent = wordsHidden ? "보기" : "숨기기";
+    button.setAttribute("aria-expanded", String(!wordsHidden));
+    if (note) note.hidden = !wordsHidden;
+  }
+
+  function setupWordListToggle() {
+    const side = document.querySelector(".wordSide");
+    const title = side?.querySelector("h3");
+    if (!side || !title) return;
+
+    let header = side.querySelector(".wsWordListHeader");
+    if (!header) {
+      header = document.createElement("div");
+      header.className = "wsWordListHeader";
+      title.parentNode.insertBefore(header, title);
+      header.appendChild(title);
+
+      const button = document.createElement("button");
+      button.id = "wsToggleWords";
+      button.type = "button";
+      button.className = "wsToggleWords";
+      button.addEventListener("click", () => {
+        wordsHidden = !wordsHidden;
+        applyWordListVisibility();
+      });
+      header.appendChild(button);
+    }
+
+    let note = side.querySelector("#wsWordListHiddenNote");
+    if (!note) {
+      note = document.createElement("div");
+      note.id = "wsWordListHiddenNote";
+      note.className = "wsWordListHiddenNote";
+      note.textContent = "찾을 낱말 목록을 숨겼습니다.";
+      header.insertAdjacentElement("afterend", note);
+    }
+
+    applyWordListVisibility();
+  }
+
   function evaluatePicked() {
     if (!last || last.mode !== "wordsearch" || !picked.length) return;
     const puzzle = last.puzzle;
@@ -126,7 +174,6 @@
     const cell = document.querySelector(`.wsCell[data-r="${coord[0]}"][data-c="${coord[1]}"]`);
 
     if (index >= 0) {
-      /* Visually remove the selection immediately before any re-evaluation. */
       picked.splice(index, 1);
       cell?.classList.remove("picked", "wrong-pick", "preview", "selected-start");
 
@@ -188,9 +235,6 @@
 
       const distance = Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y);
       if (distance < DRAG_THRESHOLD) return;
-
-      /* A gesture that starts on an already selected cell stays a cancel tap.
-         This makes border cancellation reliable on touch screens. */
       if (pointer.startedOnPicked) return;
 
       const cell = cellAt(event.clientX, event.clientY);
@@ -211,7 +255,6 @@
       const current = pointer;
       pointer = null;
 
-      /* Tapping an already selected cell always cancels that exact border/selection. */
       if (current.startedOnPicked) {
         clearPreview();
         togglePicked(current.start);
@@ -264,5 +307,7 @@
         status.textContent = `찾은 낱말 ${foundCount}/${puzzle.placed.length} · 낱말을 이루는 모든 칸을 하나씩 클릭하세요. 선택된 칸은 다시 누르면 해제됩니다.`;
       }
     }
+
+    setupWordListToggle();
   };
 })();
