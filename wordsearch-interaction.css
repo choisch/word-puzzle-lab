@@ -51,41 +51,61 @@
 }
 .wsCancelSelection:active{transform:translateY(1px)}
 .wsCancelSelection[hidden]{display:none!important}
-.wsWordListHeader{
+
+/* Legacy toggle is hidden; the whole header is now the hint control. */
+.wsWordListHeader,
+#wsWordListHiddenNote,
+#wsToggleWords{display:none!important}
+
+.wordSide{
+  padding:0!important;
+  overflow:hidden;
+}
+.wsHintCardHeader{
+  width:100%;
+  min-height:42px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
-  margin-bottom:9px;
-}
-.wsWordListHeader h3{margin:0!important}
-.wsToggleWords{
-  min-height:24px;
-  padding:3px 7px;
-  border:1px solid var(--ref-brown2-300);
-  border-radius:6px;
-  background:var(--ref-white);
-  color:var(--ref-brown2-800);
-  font:inherit;
-  font-size:9px;
-  font-weight:600;
-  cursor:pointer;
-}
-.wsToggleWords:hover{
-  background:var(--ref-brown2-100);
+  gap:12px;
+  padding:10px 12px;
+  border:0;
+  border-bottom:1px solid transparent;
+  background:transparent;
   color:var(--ref-brown2-950);
+  font:inherit;
+  cursor:pointer;
+  text-align:left;
 }
+.wsHintCardHeader:hover{background:var(--ref-brown2-50)}
+.wsHintCardHeader[aria-expanded="true"]{
+  border-bottom-color:var(--ref-brown2-300);
+}
+.wsHintCardTitle{
+  font-size:10px;
+  line-height:14px;
+  font-weight:650;
+  letter-spacing:.04em;
+}
+.wsHintCardAction{
+  flex:0 0 auto;
+  color:var(--ref-brand-900);
+  font-size:10px;
+  line-height:14px;
+  font-weight:650;
+}
+.wordSide .words,
+.wordSide .helper{
+  padding-left:12px;
+  padding-right:12px;
+}
+.wordSide .words{padding-top:11px}
+.wordSide .helper{padding-bottom:12px}
 .wordSide.words-hidden .words,
 .wordSide.words-hidden .helper{
   display:none!important;
 }
-.wsWordListHiddenNote{
-  padding:9px 0 2px;
-  color:var(--ref-brown2-700);
-  font-size:10px;
-  line-height:1.4;
-}
-.wsWordListHiddenNote[hidden]{display:none!important}
+
 @keyframes ws-found-pop{
   0%{transform:scale(.9)}
   55%{transform:scale(1.08)}
