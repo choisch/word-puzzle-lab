@@ -1,6 +1,7 @@
 (() => {
   let picked = [];
   const baseRenderWordSearch = renderWordSearch;
+  const DRAG_THRESHOLD = 10;
 
   function coordOf(cell) {
     return [+cell.dataset.r, +cell.dataset.c];
@@ -12,6 +13,10 @@
 
   function sameCoord(a, b) {
     return !!a && !!b && a[0] === b[0] && a[1] === b[1];
+  }
+
+  function isPicked(coord) {
+    return picked.some((x) => sameCoord(x, coord));
   }
 
   function setWsStatus(message, tone = "") {
@@ -107,26 +112,31 @@
     const possible = puzzle.placed.filter((item) => !item.found && item.cells.length > picked.length && selectionIsSubsetOf(item));
     if (possible.length) {
       const minLength = Math.min(...possible.map((item) => item.cells.length));
-      setWsStatus(`${picked.length}칸 선택 · ${minLength}글자 낱말 후보가 있습니다. 계속 선택하거나 다시 눌러 취소하세요.`, "selecting");
+      setWsStatus(`${picked.length}칸 선택 · ${minLength}글자 낱말 후보가 있습니다. 계속 선택하거나 선택된 칸을 다시 눌러 취소하세요.`, "selecting");
       paintPicked(false);
       return;
     }
 
-    setWsStatus("이 조합은 정답이 아닙니다. 잘못 고른 칸을 다시 누르거나 ‘선택 취소’를 누르세요.", "error");
+    setWsStatus("이 조합은 정답이 아닙니다. 잘못 고른 칸을 다시 누르면 그 칸의 선택이 바로 해제됩니다.", "error");
     paintPicked(true);
   }
 
   function togglePicked(coord) {
     const index = picked.findIndex((x) => sameCoord(x, coord));
+    const cell = document.querySelector(`.wsCell[data-r="${coord[0]}"][data-c="${coord[1]}"]`);
 
     if (index >= 0) {
+      /* Visually remove the selection immediately before any re-evaluation. */
       picked.splice(index, 1);
+      cell?.classList.remove("picked", "wrong-pick", "preview", "selected-start");
+
       if (!picked.length) {
         resetPicked();
         return;
       }
+
       paintPicked(false);
-      evaluatePicked();
+      setWsStatus(`${picked.length}칸 선택 · 방금 누른 칸의 선택을 취소했습니다.`, "selecting");
       return;
     }
 
@@ -161,20 +171,36 @@
       if (!cell) return;
       event.preventDefault();
       const start = coordOf(cell);
-      pointer = { start, cells: [start], moved: false };
+      pointer = {
+        start,
+        cells: [start],
+        x: event.clientX,
+        y: event.clientY,
+        dragged: false,
+        startedOnPicked: isPicked(start),
+      };
       grid.setPointerCapture?.(event.pointerId);
     });
 
     grid.addEventListener("pointermove", (event) => {
       if (!pointer) return;
       event.preventDefault();
+
+      const distance = Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y);
+      if (distance < DRAG_THRESHOLD) return;
+
+      /* A gesture that starts on an already selected cell stays a cancel tap.
+         This makes border cancellation reliable on touch screens. */
+      if (pointer.startedOnPicked) return;
+
       const cell = cellAt(event.clientX, event.clientY);
       if (!cell) return;
       const end = coordOf(cell);
       const cells = lineCells(pointer.start, end);
-      if (!cells.length) return;
+      if (!cells.length || cells.length < 2) return;
+
       pointer.cells = cells;
-      if (!sameCoord(pointer.start, end)) pointer.moved = true;
+      pointer.dragged = true;
       clearPickedVisual();
       showPreview(cells);
     });
@@ -185,7 +211,14 @@
       const current = pointer;
       pointer = null;
 
-      if (current.moved && current.cells.length >= 2) {
+      /* Tapping an already selected cell always cancels that exact border/selection. */
+      if (current.startedOnPicked) {
+        clearPreview();
+        togglePicked(current.start);
+        return;
+      }
+
+      if (current.dragged && current.cells.length >= 2) {
         finishWsSelection(current.cells);
         return;
       }
@@ -228,7 +261,7 @@
 
       if (!status.classList.contains("done")) {
         const foundCount = puzzle.placed.filter((item) => item.found).length;
-        status.textContent = `찾은 낱말 ${foundCount}/${puzzle.placed.length} · 낱말을 이루는 모든 칸을 하나씩 클릭하세요. 순서는 상관없습니다.`;
+        status.textContent = `찾은 낱말 ${foundCount}/${puzzle.placed.length} · 낱말을 이루는 모든 칸을 하나씩 클릭하세요. 선택된 칸은 다시 누르면 해제됩니다.`;
       }
     }
   };
