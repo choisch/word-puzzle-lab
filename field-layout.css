@@ -1,0 +1,64 @@
+/* Compact key/value field layout for the settings panel */
+.settings > .field:not(:has(textarea)){
+  display:grid!important;
+  grid-template-columns:84px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:42px;
+  margin:0!important;
+  padding:4px 0!important;
+  border-bottom:1px solid var(--ref-brown2-300);
+}
+
+.settings > .field:not(:has(textarea)) > label{
+  margin:0!important;
+  color:var(--ref-brown2-800)!important;
+  font-size:10px!important;
+  line-height:14px!important;
+  font-weight:550!important;
+  white-space:nowrap;
+}
+
+.settings > .field:not(:has(textarea)) > select{
+  width:100%!important;
+  min-width:0!important;
+  min-height:32px!important;
+  height:32px!important;
+  padding:0 28px 0 10px!important;
+  font-size:11px!important;
+}
+
+.settings > .field:not(:has(textarea)) > .rangeRow{
+  width:100%;
+  min-width:0;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 56px!important;
+  align-items:center!important;
+  gap:7px!important;
+}
+
+.settings > .field:not(:has(textarea)) .badge{
+  min-width:56px!important;
+  width:56px!important;
+  padding:3px 4px!important;
+  font-size:9px!important;
+}
+
+.settings > .field:not(:has(textarea)) input[type="range"]{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+}
+
+/* Long-form custom input remains stacked. */
+.settings > .field:has(textarea){
+  display:block!important;
+  margin:0!important;
+}
+
+@media(max-width:540px){
+  .settings > .field:not(:has(textarea)){
+    grid-template-columns:78px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+}
