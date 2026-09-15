@@ -46,9 +46,11 @@ jobs:
               ('css', './field-layout.css'),
               ('css', './wordsearch-interaction.css'),
               ('css', './portal-sudoku.css'),
+              ('css', './sudoku-notes.css'),
               ('js', './wordsearch-interaction.js'),
               ('js', './wordsearch-hint.js'),
               ('js', './portal-sudoku.js'),
+              ('js', './sudoku-notes.js'),
           ]
 
           for kind, path in assets:
@@ -63,6 +65,7 @@ jobs:
               f'<link rel="stylesheet" href="./field-layout.css?v={version}">',
               f'<link rel="stylesheet" href="./wordsearch-interaction.css?v={version}">',
               f'<link rel="stylesheet" href="./portal-sudoku.css?v={version}">',
+              f'<link rel="stylesheet" href="./sudoku-notes.css?v={version}">',
           ]
           s = s.replace('</head>', '\n'.join(links) + '\n</head>')
 
@@ -70,6 +73,7 @@ jobs:
               f'<script src="./wordsearch-interaction.js?v={version}"></script>',
               f'<script src="./wordsearch-hint.js?v={version}"></script>',
               f'<script src="./portal-sudoku.js?v={version}"></script>',
+              f'<script src="./sudoku-notes.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 
