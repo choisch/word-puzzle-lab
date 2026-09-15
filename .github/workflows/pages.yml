@@ -38,9 +38,13 @@ jobs:
           for link in links:
               if link not in s:
                   s = s.replace('</head>', f'{link}\n</head>')
-          script = '<script src="./wordsearch-interaction.js"></script>'
-          if script not in s:
-              s = s.replace('</body>', f'{script}\n</body>')
+          scripts = [
+              '<script src="./wordsearch-interaction.js"></script>',
+              '<script src="./wordsearch-hint.js"></script>',
+          ]
+          for script in scripts:
+              if script not in s:
+                  s = s.replace('</body>', f'{script}\n</body>')
           p.write_text(s, encoding='utf-8')
           PY
 
