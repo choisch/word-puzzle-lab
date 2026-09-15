@@ -48,11 +48,13 @@ jobs:
               ('css', './portal-sudoku.css'),
               ('css', './sudoku-notes.css'),
               ('css', './sudoku-rules.css'),
+              ('css', './sudoku-timer.css'),
               ('js', './wordsearch-interaction.js'),
               ('js', './wordsearch-hint.js'),
               ('js', './portal-sudoku.js'),
               ('js', './sudoku-notes.js'),
               ('js', './sudoku-rules.js'),
+              ('js', './sudoku-timer.js'),
           ]
 
           for kind, path in assets:
@@ -69,6 +71,7 @@ jobs:
               f'<link rel="stylesheet" href="./portal-sudoku.css?v={version}">',
               f'<link rel="stylesheet" href="./sudoku-notes.css?v={version}">',
               f'<link rel="stylesheet" href="./sudoku-rules.css?v={version}">',
+              f'<link rel="stylesheet" href="./sudoku-timer.css?v={version}">',
           ]
           s = s.replace('</head>', '\n'.join(links) + '\n</head>')
 
@@ -78,6 +81,7 @@ jobs:
               f'<script src="./portal-sudoku.js?v={version}"></script>',
               f'<script src="./sudoku-notes.js?v={version}"></script>',
               f'<script src="./sudoku-rules.js?v={version}"></script>',
+              f'<script src="./sudoku-timer.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 
