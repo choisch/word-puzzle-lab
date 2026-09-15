@@ -1,0 +1,14 @@
+.sudokuTimerStat{
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+}
+.sudokuTimerStat::before{
+  content:"◷";
+  margin-right:4px;
+  color:var(--ref-brown2-600);
+}
+.sudokuTimerStat.stopped{
+  background:var(--ref-green-100)!important;
+  border-color:var(--ref-green-300)!important;
+  color:var(--ref-green-900)!important;
+}
