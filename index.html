@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>낱말퍼즐 메이커</title>
+  <style>
+    :root{
+      --bg:#f6f7f9; --card:#fff; --text:#17191d; --muted:#6b7280; --line:#e5e7eb;
+      --accent:#111827; --soft:#eef0f3; --ok:#e8f5e9;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}
+    button,input,select,textarea{font:inherit}
+    .wrap{max-width:1240px;margin:0 auto;padding:28px 20px 48px}
+    .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:22px}
+    h1{font-size:30px;margin:0 0 6px;letter-spacing:-.04em}
+    .sub{color:var(--muted);font-size:14px}
+    .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,.04)}
+    .settings{padding:18px;position:sticky;top:18px}
+    .field{margin-bottom:16px}
+    label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+    select,input[type="number"],input[type="text"],textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;outline:none}
+    textarea{min-height:92px;resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:#9ca3af;box-shadow:0 0 0 3px rgba(17,24,39,.06)}
+    .rangeRow{display:flex;align-items:center;gap:12px}
+    input[type="range"]{width:100%}
+    .badge{min-width:58px;text-align:center;background:var(--soft);border-radius:999px;padding:5px 8px;font-size:12px;font-weight:700}
+    .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .check{border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13px;display:flex;gap:8px;align-items:center}
+    .actions{display:flex;gap:9px;margin-top:18px}
+    .btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer}
+    .primary{background:var(--accent);color:#fff;flex:1}
+    .ghost{background:var(--soft);color:var(--text)}
+    .main{padding:20px;min-height:700px}
+    .bar{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+    .meta{font-size:13px;color:var(--muted)}
+    .puzzleWrap{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:22px;align-items:start}
+    .gridHolder{overflow:auto;padding-bottom:8px}
+    .grid{display:grid;gap:3px;justify-content:start;user-select:none}
+    .cell{display:flex;align-items:center;justify-content:center;border:1px solid #d9dde3;background:#fff;border-radius:6px;font-weight:800;line-height:1;aspect-ratio:1/1;min-width:26px}
+    .cell.answer{background:#dff3e3;border-color:#a8d8b1}
+    .side h3{margin:0 0 10px;font-size:15px}
+    .words{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+    .word{background:var(--soft);border-radius:999px;padding:6px 9px;font-size:12px;font-weight:700}
+    .hint{font-size:12px;color:var(--muted);line-height:1.6}
+    .empty{height:520px;display:grid;place-items:center;color:var(--muted);text-align:center}
+    .empty strong{display:block;color:var(--text);font-size:18px;margin-bottom:7px}
+    .sectionTitle{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 10px}
+    .error{margin-top:12px;background:#fff4f4;color:#a11;padding:10px 12px;border-radius:10px;font-size:12px;display:none}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.settings{position:static}.puzzleWrap{grid-template-columns:1fr}.side{border-top:1px solid var(--line);padding-top:18px}.top{align-items:flex-start;flex-direction:column}}
+    @media print{
+      body{background:#fff}.wrap{max-width:none;padding:0}.settings,.top .sub,.bar .btns,.hint,.sectionTitle.custom,.customArea{display:none!important}.layout{display:block}.card{border:0;box-shadow:none}.main{padding:0}.bar{margin-bottom:14px}.puzzleWrap{grid-template-columns:1fr 220px}.cell{border-color:#999;border-radius:0}.word{background:#fff;border:1px solid #aaa}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>낱말퍼즐 메이커</h1>
+      <div class="sub">나이, 관심사, 난이도에 맞춰 퍼즐을 자동으로 만듭니다.</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="card settings">
+      <div class="field">
+        <label for="age">대상 연령</label>
+        <select id="age">
+          <option value="5-7">5–7세</option>
+          <option value="8-10" selected>8–10세</option>
+          <option value="11-13">11–13세</option>
+          <option value="14-17">14–17세</option>
+          <option value="adult">성인</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="theme">관심사</label>
+        <select id="theme">
+          <option value="animals" selected>동물</option>
+          <option value="food">음식</option>
+          <option value="nature">자연</option>
+          <option value="space">우주</option>
+          <option value="sports">스포츠</option>
+          <option value="tech">과학·기술</option>
+          <option value="mixed">섞어서</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="difficulty">난이도</label>
+        <select id="difficulty">
+          <option value="easy">쉬움</option>
+          <option value="normal" selected>보통</option>
+          <option value="hard">어려움</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="size">퍼즐 크기</label>
+        <div class="rangeRow">
+          <input id="size" type="range" min="8" max="20" value="12" />
+          <span class="badge" id="sizeBadge">12 × 12</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="wordCount">낱말 수</label>
+        <div class="rangeRow">
+          <input id="wordCount" type="range" min="5" max="18" value="10" />
+          <span class="badge" id="countBadge">10개</span>
+        </div>
+      </div>
+
+      <div class="sectionTitle">배치 방식</div>
+      <div class="checks">
+        <label class="check"><input id="diagonal" type="checkbox" checked /> 대각선</label>
+        <label class="check"><input id="reverse" type="checkbox" /> 거꾸로</label>
+      </div>
+
+      <div class="sectionTitle custom">직접 넣을 낱말</div>
+      <div class="field customArea">
+        <textarea id="customWords" placeholder="쉼표 또는 줄바꿈으로 입력\n예: 공룡, 티라노사우루스, 화석"></textarea>
+        <div class="hint">입력한 낱말은 자동 추천 낱말과 함께 사용됩니다.</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="generate">새 퍼즐 만들기</button>
+        <button class="btn ghost" id="randomize" title="설정을 랜덤하게 바꿉니다">랜덤</button>
+      </div>
+      <div class="error" id="error"></div>
+    </aside>
+
+    <main class="card main">
+      <div class="bar">
+        <div>
+          <strong id="title">동물 낱말퍼즐</strong>
+          <div class="meta" id="meta">8–10세 · 보통 · 12 × 12</div>
+        </div>
+        <div class="btns">
+          <button class="btn ghost" id="answer">정답 보기</button>
+          <button class="btn ghost" id="print">인쇄</button>
+        </div>
+      </div>
+
+      <div id="content" class="empty">
+        <div><strong>설정을 고르고 퍼즐을 만들어보세요.</strong>한 번 누를 때마다 다른 퍼즐이 생성됩니다.</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const BANK = {
+  animals: ["고양이","강아지","토끼","사자","호랑이","코끼리","기린","판다","여우","늑대","수달","사슴","하마","얼룩말","펭귄","돌고래","문어","고래","부엉이","독수리","다람쥐","카피바라","햄스터","치타","코알라","캥거루","두더지","도마뱀","해파리","불가사리"],
+  food: ["김밥","떡볶이","라면","비빔밥","불고기","잡채","만두","김치","피자","파스타","샌드위치","햄버거","초밥","우동","카레","수박","딸기","포도","사과","복숭아","아이스크림","초콜릿","요거트","쿠키","마카롱","팝콘","치즈","오므라이스"],
+  nature: ["나무","꽃","바람","구름","햇빛","별빛","바다","강물","호수","폭포","산맥","계곡","숲길","들판","무지개","번개","소나기","눈송이","모래","파도","섬","화산","빙하","사막","습지","해변","단풍","민들레"],
+  space: ["태양","달","지구","화성","목성","토성","금성","수성","천왕성","해왕성","은하","별자리","혜성","운석","우주선","위성","로켓","우주인","블랙홀","초신성","중력","궤도","망원경","은하수","소행성","우주정거장"],
+  sports: ["축구","야구","농구","배구","테니스","골프","수영","양궁","펜싱","탁구","배드민턴","태권도","유도","스키","스케이트","서핑","마라톤","체조","사이클","클라이밍","볼링","럭비","하키","승마","다이빙"],
+  tech: ["로봇","컴퓨터","코딩","인공지능","반도체","배터리","센서","드론","위성","레이저","인터넷","알고리즘","데이터","모델","회로","전기","자석","원자","분자","현미경","망원경","실험","에너지","자동화","소프트웨어","하드웨어","가상현실","디지털트윈"]
+};
+const LABELS = {animals:"동물",food:"음식",nature:"자연",space:"우주",sports:"스포츠",tech:"과학·기술",mixed:"취향 믹스"};
+const AGE = {
+  "5-7": {label:"5–7세", maxLen:4, count:7},
+  "8-10": {label:"8–10세", maxLen:5, count:10},
+  "11-13": {label:"11–13세", maxLen:7, count:12},
+  "14-17": {label:"14–17세", maxLen:10, count:14},
+  adult: {label:"성인", maxLen:12, count:16}
+};
+const FILL = [..."가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도로모보소오조초코토포호구누두루무부수우주추쿠투푸후기니디리미비시이지치키티피히개내대래매배새애재채캐태패해"];
+
+const $ = id => document.getElementById(id);
+let last = null;
+let showAnswer = false;
+
+function shuffle(a){
+  const x=[...a];
+  for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}
+  return x;
+}
+function uniq(arr){return [...new Set(arr.filter(Boolean))]}
+function parseCustom(){
+  return uniq($("customWords").value.split(/[\n,，]+/).map(s=>s.trim().replace(/\s+/g,""))).filter(w=>w.length>=2);
+}
+function getDirections(difficulty){
+  const dirs=[[0,1],[1,0]];
+  if($("diagonal").checked || difficulty!=="easy") dirs.push([1,1],[1,-1]);
+  const reverse = $("reverse").checked || difficulty==="hard";
+  if(reverse) return [...dirs, ...dirs.map(([r,c])=>[-r,-c])];
+  return dirs;
+}
+function candidates(theme, ageKey, size, desired){
+  let pool = theme==="mixed" ? Object.values(BANK).flat() : BANK[theme];
+  pool = uniq([...parseCustom(), ...pool]);
+  const maxLen=Math.min(AGE[ageKey].maxLen,size);
+  let filtered=pool.filter(w=>w.length<=maxLen && w.length>=2);
+  if(filtered.length<desired) filtered=pool.filter(w=>w.length<=size && w.length>=2);
+  return shuffle(filtered).sort((a,b)=>b.length-a.length).slice(0, Math.max(desired*2, desired));
+}
+function emptyGrid(n){return Array.from({length:n},()=>Array(n).fill(null))}
+function placementsFor(grid, word, directions){
+  const n=grid.length, result=[];
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) for(const [dr,dc] of directions){
+    const er=r+dr*(word.length-1), ec=c+dc*(word.length-1);
+    if(er<0||er>=n||ec<0||ec>=n) continue;
+    let ok=true, overlap=0;
+    for(let i=0;i<word.length;i++){
+      const cur=grid[r+dr*i][c+dc*i];
+      if(cur && cur!==word[i]){ok=false;break}
+      if(cur===word[i]) overlap++;
+    }
+    if(ok) result.push({r,c,dr,dc,overlap});
+  }
+  return result;
+}
+function placeWord(grid, word, p){
+  const cells=[];
+  for(let i=0;i<word.length;i++){
+    const r=p.r+p.dr*i,c=p.c+p.dc*i;grid[r][c]=word[i];cells.push([r,c]);
+  }
+  return cells;
+}
+function makePuzzle(){
+  const size=+$("size").value;
+  const desired=+$("wordCount").value;
+  const difficulty=$("difficulty").value;
+  const ageKey=$("age").value;
+  const theme=$("theme").value;
+  const dirs=getDirections(difficulty);
+  let best=null;
+  for(let attempt=0;attempt<30;attempt++){
+    const grid=emptyGrid(size), placed=[];
+    const words=candidates(theme,ageKey,size,desired);
+    for(const word of words){
+      if(placed.length>=desired) break;
+      let ps=placementsFor(grid,word,dirs);
+      if(!ps.length) continue;
+      ps=shuffle(ps);
+      if(difficulty!=="easy") ps.sort((a,b)=>b.overlap-a.overlap);
+      const p=ps[0];
+      const cells=placeWord(grid,word,p);
+      placed.push({word,cells});
+    }
+    if(!best || placed.length>best.placed.length) best={grid,placed};
+    if(placed.length>=desired) break;
+  }
+  if(!best || best.placed.length<Math.min(4,desired)) throw new Error("퍼즐에 낱말을 충분히 배치하지 못했습니다. 크기를 키우거나 낱말 수를 줄여주세요.");
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!best.grid[r][c]) best.grid[r][c]=FILL[Math.floor(Math.random()*FILL.length)];
+  best.settings={size,desired,difficulty,ageKey,theme};
+  return best;
+}
+function render(p){
+  last=p; showAnswer=false; $("answer").textContent="정답 보기";
+  const {size,difficulty,ageKey,theme}=p.settings;
+  $("title").textContent=`${LABELS[theme]} 낱말퍼즐`;
+  $("meta").textContent=`${AGE[ageKey].label} · ${difficulty==="easy"?"쉬움":difficulty==="normal"?"보통":"어려움"} · ${size} × ${size}`;
+  const answerSet=new Set(p.placed.flatMap(o=>o.cells.map(([r,c])=>`${r}-${c}`)));
+  const cellSize=Math.max(26, Math.min(44, Math.floor(560/size)));
+  const gridHtml=p.grid.map((row,r)=>row.map((ch,c)=>`<div class="cell" data-key="${r}-${c}" style="width:${cellSize}px;font-size:${Math.max(13,Math.floor(cellSize*.48))}px">${ch}</div>`).join("")).join("");
+  const words=p.placed.map(o=>`<span class="word">${o.word}</span>`).join("");
+  $("content").className="puzzleWrap";
+  $("content").innerHTML=`<div class="gridHolder"><div class="grid" style="grid-template-columns:repeat(${size},${cellSize}px)">${gridHtml}</div></div><div class="side"><h3>찾을 낱말 ${p.placed.length}개</h3><div class="words">${words}</div><div class="hint">가로·세로${getDirections(difficulty).some(([r,c])=>Math.abs(r)===1&&Math.abs(c)===1)?"·대각선":""}${getDirections(difficulty).some(([r,c])=>r<0||c<0)?"·거꾸로":""} 방향에 숨어 있습니다.<br><br>정답 보기 버튼으로 배치된 낱말을 확인할 수 있습니다.</div></div>`;
+  last.answerSet=answerSet;
+}
+function generate(){
+  $("error").style.display="none";
+  try{render(makePuzzle())}catch(e){$("error").textContent=e.message;$("error").style.display="block"}
+}
+function syncAge(){
+  const a=AGE[$("age").value];
+  $("wordCount").value=Math.min(18,a.count);
+  syncBadges();
+}
+function syncDifficulty(){
+  const d=$("difficulty").value;
+  if(d==="easy"){ $("diagonal").checked=false; $("reverse").checked=false; }
+  if(d==="normal"){ $("diagonal").checked=true; $("reverse").checked=false; }
+  if(d==="hard"){ $("diagonal").checked=true; $("reverse").checked=true; }
+}
+function syncBadges(){ $("sizeBadge").textContent=`${$("size").value} × ${$("size").value}`; $("countBadge").textContent=`${$("wordCount").value}개`; }
+
+$("size").addEventListener("input",syncBadges); $("wordCount").addEventListener("input",syncBadges);
+$("age").addEventListener("change",syncAge); $("difficulty").addEventListener("change",syncDifficulty);
+$("generate").addEventListener("click",generate);
+$("answer").addEventListener("click",()=>{
+  if(!last) return;
+  showAnswer=!showAnswer;
+  document.querySelectorAll(".cell").forEach(el=>el.classList.toggle("answer",showAnswer && last.answerSet.has(el.dataset.key)));
+  $("answer").textContent=showAnswer?"정답 숨기기":"정답 보기";
+});
+$("print").addEventListener("click",()=>window.print());
+$("randomize").addEventListener("click",()=>{
+  const ages=Object.keys(AGE), themes=Object.keys(LABELS), ds=["easy","normal","hard"];
+  $("age").value=ages[Math.floor(Math.random()*ages.length)];
+  $("theme").value=themes[Math.floor(Math.random()*themes.length)];
+  $("difficulty").value=ds[Math.floor(Math.random()*ds.length)];
+  $("size").value=8+Math.floor(Math.random()*13);
+  syncAge(); syncDifficulty(); syncBadges(); generate();
+});
+
+syncBadges();
+generate();
+</script>
+</body>
+</html>
