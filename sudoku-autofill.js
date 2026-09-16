@@ -13,6 +13,11 @@
     return activeBoard?.querySelector(`.sudokuCell[data-r="${r}"][data-c="${c}"]`) || null;
   }
 
+  function hintModeEnabled() {
+    const toggle = document.querySelector('.sudokuHintToggle');
+    return !!toggle && toggle.getAttribute('aria-pressed') === 'true';
+  }
+
   function hasConflict(board) {
     for (let r = 0; r < 9; r++) {
       const seen = new Set();
@@ -48,35 +53,6 @@
     return false;
   }
 
-  function candidates(board, r, c) {
-    if (board[r][c]) return [];
-    const used = new Set();
-    for (let i = 0; i < 9; i++) {
-      if (board[r][i]) used.add(board[r][i]);
-      if (board[i][c]) used.add(board[i][c]);
-    }
-    const br = Math.floor(r / 3) * 3;
-    const bc = Math.floor(c / 3) * 3;
-    for (let rr = br; rr < br + 3; rr++) {
-      for (let cc = bc; cc < bc + 3; cc++) {
-        if (board[rr][cc]) used.add(board[rr][cc]);
-      }
-    }
-    return [1,2,3,4,5,6,7,8,9].filter((n) => !used.has(n));
-  }
-
-  function findSingles(board) {
-    const singles = [];
-    for (let r = 0; r < 9; r++) {
-      for (let c = 0; c < 9; c++) {
-        if (board[r][c]) continue;
-        const options = candidates(board, r, c);
-        if (options.length === 1) singles.push([r, c, options[0]]);
-      }
-    }
-    return singles;
-  }
-
   function setFeedback(message, tone = '') {
     const feedback = document.querySelector('.sudokuHintFeedback');
     if (!feedback) return;
@@ -84,52 +60,97 @@
     feedback.className = `sudokuHintFeedback${tone ? ` ${tone}` : ''}`;
   }
 
-  function fillOneObviousCell() {
+  function chooseHintCell(state) {
+    const selected = activeBoard?.querySelector('.sudokuCell.selected');
+    if (selected) {
+      const r = Number(selected.dataset.r);
+      const c = Number(selected.dataset.c);
+      if (!state.given[r][c] && !state.current[r][c]) return [r, c];
+    }
+
+    const empty = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (!state.given[r][c] && !state.current[r][c]) empty.push([r, c]);
+      }
+    }
+    if (!empty.length) return null;
+    return empty[Math.floor(Math.random() * empty.length)];
+  }
+
+  function giveOneCellHint() {
     const state = currentState();
     if (!activeBoard || !state || state.revealed || !Array.isArray(state.current)) return;
 
+    if (!hintModeEnabled()) {
+      setFeedback('한 칸 힌트를 쓰려면 힌트 모드를 켜주세요.', 'temporary');
+      syncHintButton();
+      return;
+    }
+
     if (hasConflict(state.current)) {
-      setFeedback('먼저 중복된 숫자를 고쳐야 자명한 칸을 찾을 수 있어요.', 'warning');
+      setFeedback('먼저 표시된 중복 숫자를 고쳐주세요. 그다음 한 칸 힌트를 쓸 수 있어요.', 'warning');
       return;
     }
 
-    const singles = findSingles(state.current);
-    if (!singles.length) {
-      setFeedback('지금은 규칙만으로 바로 확정되는 칸이 없어요.', 'temporary');
+    const target = chooseHintCell(state);
+    if (!target) {
+      setFeedback('빈칸이 없습니다.', 'good');
       return;
     }
 
-    const [r, c, value] = singles[Math.floor(Math.random() * singles.length)];
+    const [r, c] = target;
+    const value = state.solution[r][c];
     state.current[r][c] = value;
+    state.selected = [r, c];
 
     const cell = cellAt(r, c);
     if (cell) {
       cell.textContent = value;
-      cell.classList.add('user', 'auto-filled');
-      cell.classList.remove('temporary-entry', 'wrong');
-      cell.setAttribute('data-auto-filled', '1');
-      cell.title = '규칙상 가능한 숫자가 하나뿐이라 도움으로 채운 칸입니다.';
+      cell.classList.add('user', 'hint-filled', 'selected');
+      cell.classList.remove('temporary-entry', 'wrong', 'assist-conflict');
+      cell.setAttribute('data-hint-filled', '1');
+      cell.title = '한 칸 힌트로 채운 숫자입니다.';
     }
 
-    setFeedback(`${r + 1}행 ${c + 1}열은 ${value}만 들어갈 수 있어요. 한 칸만 도와드렸습니다.`, 'good');
+    setFeedback(`${r + 1}행 ${c + 1}열에 한 칸 힌트를 드렸어요.`, 'good');
+  }
+
+  function syncHintButton() {
+    const button = document.querySelector('.sudokuOneCellHint');
+    if (!button) return;
+    const enabled = hintModeEnabled();
+    button.disabled = !enabled;
+    button.classList.toggle('off', !enabled);
+    button.setAttribute('aria-disabled', String(!enabled));
+    const small = button.querySelector('small');
+    if (small) {
+      small.textContent = enabled
+        ? '막혔을 때 빈칸 하나를 정답으로 채워줘요'
+        : '힌트 모드를 켜면 사용할 수 있어요';
+    }
   }
 
   function ensureButton() {
     const assist = document.querySelector('.sudokuAssist');
-    if (!assist || assist.querySelector('.sudokuAutoToggle')) return;
+    if (!assist || assist.querySelector('.sudokuOneCellHint')) {
+      syncHintButton();
+      return;
+    }
 
     const temp = assist.querySelector('.sudokuTempToggle');
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'sudokuTempToggle sudokuAutoToggle';
+    button.className = 'sudokuTempToggle sudokuOneCellHint';
     button.innerHTML = `
-      <span><b>자명한 칸 1개 찾기</b><small>후보 숫자가 하나뿐인 칸 하나만 도와줘요</small></span>
-      <span aria-hidden="true" style="font-weight:700;font-size:16px;line-height:1">→</span>`;
+      <span><b>한 칸 힌트</b><small>막혔을 때 빈칸 하나를 정답으로 채워줘요</small></span>
+      <span aria-hidden="true" style="font-weight:700;font-size:16px;line-height:1">?</span>`;
 
     if (temp) temp.insertAdjacentElement('afterend', button);
     else assist.appendChild(button);
 
-    button.addEventListener('click', fillOneObviousCell);
+    button.addEventListener('click', giveOneCellHint);
+    syncHintButton();
   }
 
   function attachBoard(board) {
@@ -141,8 +162,9 @@
     const board = document.querySelector('.sudokuBoard');
     if (board) attachBoard(board);
     ensureButton();
+    syncHintButton();
   });
-  pageObserver.observe(document.body, { childList: true, subtree: true });
+  pageObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-pressed', 'class'] });
 
   const board = document.querySelector('.sudokuBoard');
   if (board) attachBoard(board);
