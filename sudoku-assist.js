@@ -224,10 +224,11 @@
 
     if (filled === 81 && conflicts.size === 0) {
       if (temporaryCount > 0) {
-        setFeedback(`모든 칸이 규칙에 맞습니다. 임시 숫자 ${temporaryCount}개를 확정해 보세요.`, 'temporary');
-      } else {
-        celebrate();
+        cells.forEach((cell) => cell.classList.remove('temporary-entry'));
+        temporaryMode = false;
+        syncToggleUi();
       }
+      celebrate();
       return;
     }
 
