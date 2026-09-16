@@ -197,8 +197,8 @@
   function releaseServe() {
     pointLocked = false;
     const dir = ball.serveSide === 'player' ? 1 : -1;
-    ball.vx = dir * (3.1 + Math.random() * 1.1);
-    ball.vy = -1.2 - Math.random() * 1.4;
+    ball.vx = dir * (2.4 + Math.random() * 0.8);
+    ball.vy = -1.0 - Math.random() * 1.0;
     serveAt = 0;
   }
 
@@ -238,15 +238,15 @@
 
     if (pointLocked) return;
 
-    ball.vy += 0.38 * dt;
+    ball.vy += 0.32 * dt;
     ball.x += ball.vx * dt;
     ball.y += ball.vy * dt;
     ball.spin += ball.vx * 0.012 * dt;
-    ball.vx *= Math.pow(.999, dt);
+    ball.vx *= Math.pow(.9985, dt);
 
-    if (ball.x - BALL_R < 0) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx) * .96; }
-    if (ball.x + BALL_R > W) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * .96; }
-    if (ball.y - BALL_R < 18) { ball.y = 18 + BALL_R; ball.vy = Math.abs(ball.vy) * .9; }
+    if (ball.x - BALL_R < 0) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx) * .94; }
+    if (ball.x + BALL_R > W) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * .94; }
+    if (ball.y - BALL_R < 18) { ball.y = 18 + BALL_R; ball.vy = Math.abs(ball.vy) * .88; }
 
     collideNet();
     collidePlayer(player, false);
@@ -336,10 +336,10 @@
     if (ball.y + BALL_R > top && ball.y - BALL_R < GROUND && ball.x + BALL_R > left && ball.x - BALL_R < right) {
       const fromLeft = ball.x < NET_X;
       ball.x = fromLeft ? left - BALL_R : right + BALL_R;
-      ball.vx = fromLeft ? -Math.abs(ball.vx) * .9 : Math.abs(ball.vx) * .9;
+      ball.vx = fromLeft ? -Math.abs(ball.vx) * .88 : Math.abs(ball.vx) * .88;
     } else if (ball.y + BALL_R > top - 4 && ball.y - BALL_R < top + 7 && Math.abs(ball.x - NET_X) < NET_W / 2 + BALL_R) {
       ball.y = top - BALL_R;
-      ball.vy = -Math.abs(ball.vy) * .92;
+      ball.vy = -Math.abs(ball.vy) * .88;
     }
   }
 
@@ -358,14 +358,14 @@
     ball.y += ny * overlap;
 
     const approach = ball.vx * nx + ball.vy * ny - (p.vx * nx + p.vy * ny);
-    const base = Math.max(5.4, Math.abs(approach) * 1.05 + 3.2);
-    ball.vx = p.vx * .58 + nx * base;
-    ball.vy = p.vy * .35 + ny * base - 1.4;
+    const base = Math.max(4.3, Math.abs(approach) * 0.88 + 2.6);
+    ball.vx = p.vx * .45 + nx * base;
+    ball.vy = p.vy * .28 + ny * base - 1.1;
 
     if (p.spike > 0) {
       const dir = isCpu ? -1 : 1;
-      ball.vx += dir * 5.3;
-      ball.vy += 3.7;
+      ball.vx += dir * 4.1;
+      ball.vy += 2.8;
       p.spike = 0;
       flashMessage(isCpu ? 'CPU 스파이크!' : '스파이크!', 420);
     }
