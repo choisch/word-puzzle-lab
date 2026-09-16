@@ -82,6 +82,9 @@
       if (!activeBoard || isRevealMode()) return;
       const cell = selectedCell();
       if (!cell || cell.classList.contains('given')) return;
+      cell.classList.remove('hint-filled');
+      cell.removeAttribute('data-hint-filled');
+      cell.removeAttribute('title');
       const actual = cellValue(cell);
       if (!actual || value === 0) {
         cell.classList.remove('temporary-entry');
