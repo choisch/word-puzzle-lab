@@ -57,6 +57,7 @@ jobs:
               ('js', './sudoku-rules.js'),
               ('js', './sudoku-timer.js'),
               ('js', './sudoku-assist.js'),
+              ('js', './sudoku-autofill.js'),
           ]
 
           for kind, path in assets:
@@ -86,6 +87,7 @@ jobs:
               f'<script src="./sudoku-rules.js?v={version}"></script>',
               f'<script src="./sudoku-timer.js?v={version}"></script>',
               f'<script src="./sudoku-assist.js?v={version}"></script>',
+              f'<script src="./sudoku-autofill.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 
