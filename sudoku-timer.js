@@ -45,6 +45,10 @@
     return hours ? `${String(hours).padStart(2, '0')}:${mm}:${ss}` : `${mm}:${ss}`;
   }
 
+  function setText(el, text) {
+    if (el && el.textContent !== text) el.textContent = text;
+  }
+
   function timerBadge() {
     return document.getElementById('sudokuElapsedTime');
   }
@@ -57,14 +61,14 @@
     const badge = timerBadge();
     if (badge && startedAt) {
       const end = stoppedAt || Date.now();
-      badge.textContent = `시간 ${formatElapsed(end - startedAt)}`;
+      setText(badge, `시간 ${formatElapsed(end - startedAt)}`);
       badge.classList.toggle('stopped', !!stoppedAt);
     }
 
     const best = bestBadge();
     if (best) {
       const value = readBest();
-      best.textContent = `최고 ${value ? formatElapsed(value) : '-'}`;
+      setText(best, `최고 ${value ? formatElapsed(value) : '-'}`);
     }
   }
 
