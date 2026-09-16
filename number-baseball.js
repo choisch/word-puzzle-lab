@@ -7,12 +7,13 @@
   const top = document.querySelector('.top');
   if (!portal || !grid || !layout || !content || !back || !top) return;
 
+  const BEST_KEY = 'nb_best';
   let secret = [];
   let tries = [];
   let finished = false;
   let historyVisible = true;
   let best = null;
-  try { best = Number(localStorage.getItem('nb_best')) || null; } catch (_) {}
+  try { best = Number(localStorage.getItem(BEST_KEY)) || null; } catch (_) {}
 
   function setTop(subtitle) {
     const h1 = top.querySelector('h1');
@@ -67,13 +68,21 @@
     renderShell();
   }
 
+  function resetBestRecord() {
+    if (!best) return;
+    if (!window.confirm('숫자야구 최고 기록을 초기화할까요?')) return;
+    best = null;
+    try { localStorage.removeItem(BEST_KEY); } catch (_) {}
+    updateStats();
+  }
+
   function renderShell() {
     content.className = 'numberBaseballContent';
     content.innerHTML = `
       <div class="nbRule"><strong>규칙</strong><span>자리까지 맞으면 스트라이크, 숫자만 맞으면 볼입니다.</span></div>
       <div class="nbTopbar">
         <div class="nbStats"><span class="nbStat" id="nbTryStat">시도 0회</span><span class="nbStat" id="nbBestStat">최고 ${best ?? '-'}회</span></div>
-        <button type="button" class="nbNew" id="nbNew">새 게임</button>
+        <div class="nbTopActions"><button type="button" class="nbResetRecord" id="nbResetRecord">기록 초기화</button><button type="button" class="nbNew" id="nbNew">새 게임</button></div>
       </div>
       <div class="nbLayout">
         <section class="nbPlay">
@@ -98,6 +107,7 @@
       <section class="nbHistory ${historyVisible ? '' : 'hidden'}" id="nbHistory"><div class="nbHistoryHead"><strong>시도 기록</strong><span id="nbHistoryCount">0회</span></div><ol id="nbHistoryList"></ol></section>`;
 
     document.getElementById('nbNew')?.addEventListener('click', newGame);
+    document.getElementById('nbResetRecord')?.addEventListener('click', resetBestRecord);
     document.getElementById('nbSubmit')?.addEventListener('click', submitGuess);
     document.getElementById('nbBackspace')?.addEventListener('click', () => editInput((v) => v.slice(0, -1)));
     document.getElementById('nbClear')?.addEventListener('click', () => editInput(() => ''));
@@ -161,7 +171,7 @@
       finished = true;
       if (!best || tries.length < best) {
         best = tries.length;
-        try { localStorage.setItem('nb_best', String(best)); } catch (_) {}
+        try { localStorage.setItem(BEST_KEY, String(best)); } catch (_) {}
       }
       setResult(`정답! ${guessText} · ${tries.length}번 만에 맞혔어요 🎉`, 'ok');
       updateStats();
@@ -197,8 +207,10 @@
   function updateStats() {
     const tryEl = document.getElementById('nbTryStat');
     const bestEl = document.getElementById('nbBestStat');
+    const resetEl = document.getElementById('nbResetRecord');
     if (tryEl) tryEl.textContent = `시도 ${tries.length}회`;
     if (bestEl) bestEl.textContent = `최고 ${best ?? '-'}회`;
+    if (resetEl) resetEl.disabled = !best;
   }
 
   function celebrate() {
