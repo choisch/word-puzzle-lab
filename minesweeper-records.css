@@ -1,0 +1,6 @@
+.msBestStat{color:var(--ref-green-900)!important;border-color:var(--ref-green-300)!important;background:var(--ref-green-100)!important}
+.msResetBest{height:32px!important;border:1px solid var(--ref-brown2-300)!important;border-radius:8px!important;background:var(--ref-white)!important;color:var(--ref-brown2-700)!important;padding:0 9px!important;font:inherit!important;font-size:9.5px!important;font-weight:650!important;cursor:pointer!important}
+.msResetBest:hover:not(:disabled){border-color:var(--ref-brown2-500)!important;color:var(--ref-brown2-950)!important}
+.msResetBest:disabled{opacity:.38!important;cursor:not-allowed!important}
+@media(max-width:620px){.msNewControls{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important}.msNewControls select,.msNewControls button{min-width:0!important}.msResetBest{padding:0 8px!important;font-size:9px!important}}
+@media(max-width:390px){.msNewControls{grid-template-columns:minmax(0,1fr) 1fr!important}.msResetBest{grid-column:1/2}.msNewControls #msNewGame{grid-column:2/3}}
