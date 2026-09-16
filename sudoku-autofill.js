@@ -1,5 +1,6 @@
 (() => {
   let activeBoard = null;
+  let activeAssist = null;
 
   function currentState() {
     try {
@@ -22,34 +23,37 @@
     for (let r = 0; r < 9; r++) {
       const seen = new Set();
       for (let c = 0; c < 9; c++) {
-        const v = board[r][c];
-        if (!v) continue;
-        if (seen.has(v)) return true;
-        seen.add(v);
+        const value = board[r][c];
+        if (!value) continue;
+        if (seen.has(value)) return true;
+        seen.add(value);
       }
     }
+
     for (let c = 0; c < 9; c++) {
       const seen = new Set();
       for (let r = 0; r < 9; r++) {
-        const v = board[r][c];
-        if (!v) continue;
-        if (seen.has(v)) return true;
-        seen.add(v);
+        const value = board[r][c];
+        if (!value) continue;
+        if (seen.has(value)) return true;
+        seen.add(value);
       }
     }
+
     for (let br = 0; br < 3; br++) {
       for (let bc = 0; bc < 3; bc++) {
         const seen = new Set();
         for (let r = br * 3; r < br * 3 + 3; r++) {
           for (let c = bc * 3; c < bc * 3 + 3; c++) {
-            const v = board[r][c];
-            if (!v) continue;
-            if (seen.has(v)) return true;
-            seen.add(v);
+            const value = board[r][c];
+            if (!value) continue;
+            if (seen.has(value)) return true;
+            seen.add(value);
           }
         }
       }
     }
+
     return false;
   }
 
@@ -106,6 +110,7 @@
 
     const cell = cellAt(r, c);
     if (cell) {
+      activeBoard.querySelectorAll('.sudokuCell.selected').forEach((item) => item.classList.remove('selected'));
       cell.textContent = value;
       cell.classList.add('user', 'hint-filled', 'selected');
       cell.classList.remove('temporary-entry', 'wrong', 'assist-conflict');
@@ -119,53 +124,64 @@
   function syncHintButton() {
     const button = document.querySelector('.sudokuOneCellHint');
     if (!button) return;
+
     const enabled = hintModeEnabled();
-    button.disabled = !enabled;
+    if (button.disabled === enabled) button.disabled = !enabled;
     button.classList.toggle('off', !enabled);
     button.setAttribute('aria-disabled', String(!enabled));
+
     const small = button.querySelector('small');
-    if (small) {
-      small.textContent = enabled
-        ? '막혔을 때 빈칸 하나를 정답으로 채워줘요'
-        : '힌트 모드를 켜면 사용할 수 있어요';
-    }
+    const text = enabled
+      ? '막혔을 때 빈칸 하나를 정답으로 채워줘요'
+      : '힌트 모드를 켜면 사용할 수 있어요';
+    if (small && small.textContent !== text) small.textContent = text;
   }
 
   function ensureButton() {
     const assist = document.querySelector('.sudokuAssist');
-    if (!assist || assist.querySelector('.sudokuOneCellHint')) {
-      syncHintButton();
-      return;
+    if (!assist) return;
+
+    if (assist !== activeAssist) {
+      activeAssist = assist;
+      const hintToggle = assist.querySelector('.sudokuHintToggle');
+      if (hintToggle && hintToggle.dataset.oneCellHintBound !== '1') {
+        hintToggle.dataset.oneCellHintBound = '1';
+        hintToggle.addEventListener('click', () => requestAnimationFrame(syncHintButton));
+      }
     }
 
-    const temp = assist.querySelector('.sudokuTempToggle');
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'sudokuTempToggle sudokuOneCellHint';
-    button.innerHTML = `
-      <span><b>한 칸 힌트</b><small>막혔을 때 빈칸 하나를 정답으로 채워줘요</small></span>
-      <span aria-hidden="true" style="font-weight:700;font-size:16px;line-height:1">?</span>`;
+    let button = assist.querySelector('.sudokuOneCellHint');
+    if (!button) {
+      const temp = assist.querySelector('.sudokuTempToggle');
+      button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'sudokuTempToggle sudokuOneCellHint';
+      button.innerHTML = `
+        <span><b>한 칸 힌트</b><small>막혔을 때 빈칸 하나를 정답으로 채워줘요</small></span>
+        <span aria-hidden="true" style="font-weight:700;font-size:16px;line-height:1">?</span>`;
 
-    if (temp) temp.insertAdjacentElement('afterend', button);
-    else assist.appendChild(button);
+      if (temp) temp.insertAdjacentElement('afterend', button);
+      else assist.appendChild(button);
+      button.addEventListener('click', giveOneCellHint);
+    }
 
-    button.addEventListener('click', giveOneCellHint);
     syncHintButton();
   }
 
   function attachBoard(board) {
-    if (board !== activeBoard) activeBoard = board;
+    activeBoard = board;
     ensureButton();
   }
 
   const pageObserver = new MutationObserver(() => {
     const board = document.querySelector('.sudokuBoard');
-    if (board) attachBoard(board);
-    ensureButton();
-    syncHintButton();
+    if (board && board !== activeBoard) attachBoard(board);
+    else ensureButton();
   });
-  pageObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-pressed', 'class'] });
+
+  pageObserver.observe(document.body, { childList: true, subtree: true });
 
   const board = document.querySelector('.sudokuBoard');
   if (board) attachBoard(board);
+  else ensureButton();
 })();
