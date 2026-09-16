@@ -4,7 +4,7 @@
 .portalEyebrow{font-size:8px;line-height:11px;font-weight:700;letter-spacing:.09em;color:var(--ref-brown2-700);text-transform:uppercase;margin-bottom:5px}
 .portalHero h2{margin:0;color:var(--ref-brown2-950);font-size:23px;line-height:1.18;letter-spacing:-.035em;font-weight:680}
 .portalHero p{margin:5px 0 0;color:var(--ref-brown2-700);font-size:10.5px;line-height:1.45}
-.portalGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.portalGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .portalCard{appearance:none;display:grid;grid-template-rows:auto auto;justify-items:center;align-content:center;gap:9px;text-align:center;min-height:126px;padding:13px 9px;border:1px solid var(--ref-brown2-300);border-radius:12px;background:var(--ref-brown2-50);color:var(--ref-brown2-950);cursor:pointer;box-shadow:0 1px 2px rgba(53,39,25,.025);transition:border-color .14s ease,background .14s ease,transform .14s ease,box-shadow .14s ease}
 .portalCard:hover{background:var(--ref-white);border-color:var(--ref-brown2-500);box-shadow:0 4px 14px rgba(53,39,25,.055);transform:translateY(-1px)}
 .portalCard:active{transform:translateY(0)}
