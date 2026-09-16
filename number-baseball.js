@@ -70,7 +70,7 @@
   function renderShell() {
     content.className = 'numberBaseballContent';
     content.innerHTML = `
-      <div class="nbRule"><strong>규칙</strong><span>서로 다른 숫자 3개를 맞히세요. 자리까지 맞으면 스트라이크, 숫자만 맞으면 볼입니다.</span></div>
+      <div class="nbRule"><strong>규칙</strong><span>자리까지 맞으면 스트라이크, 숫자만 맞으면 볼입니다.</span></div>
       <div class="nbTopbar">
         <div class="nbStats"><span class="nbStat" id="nbTryStat">시도 0회</span><span class="nbStat" id="nbBestStat">최고 ${best ?? '-'}회</span></div>
         <button type="button" class="nbNew" id="nbNew">새 게임</button>
@@ -78,7 +78,7 @@
       <div class="nbLayout">
         <section class="nbPlay">
           <div class="nbGuessRow">
-            <input id="nbInput" class="nbInput" type="text" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="숫자 3자리" aria-label="숫자 3자리 입력">
+            <input id="nbInput" class="nbInput" type="text" readonly maxlength="3" placeholder="숫자 3자리" aria-label="선택한 숫자 3자리" tabindex="-1">
             <button type="button" class="nbSubmit" id="nbSubmit">확인</button>
           </div>
           <div class="nbKeypad" aria-label="숫자 키패드">
@@ -86,7 +86,7 @@
             <button type="button" class="nbKey nbKeyWide" id="nbBackspace">지우기</button>
             <button type="button" class="nbKey nbKeyWide" id="nbClear">전체 지우기</button>
           </div>
-          <div class="nbResult" id="nbResult">서로 다른 숫자 3개를 입력하세요.</div>
+          <div class="nbResult hidden" id="nbResult" aria-live="polite"></div>
         </section>
         <aside class="nbSide">
           <button type="button" class="nbToggle ${historyVisible ? 'on' : ''}" id="nbHistoryToggle" aria-pressed="${historyVisible}">
@@ -107,12 +107,7 @@
     });
     document.querySelectorAll('.nbKey[data-number]').forEach((button) => button.addEventListener('click', () => appendDigit(button.dataset.number)));
 
-    const input = document.getElementById('nbInput');
-    input?.addEventListener('input', enforceInput);
-    input?.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') submitGuess();
-    });
-    input?.focus();
+    syncKeypad();
     updateStats();
   }
 
@@ -128,36 +123,31 @@
     const input = document.getElementById('nbInput');
     if (!input || finished) return;
     input.value = fn(input.value);
-    input.focus();
+    syncKeypad();
   }
 
   function appendDigit(digit) {
     const input = document.getElementById('nbInput');
     if (!input || finished || input.value.length >= 3 || input.value.includes(digit)) return;
     input.value += digit;
-    input.focus();
+    syncKeypad();
   }
 
-  function enforceInput() {
+  function syncKeypad() {
     const input = document.getElementById('nbInput');
     if (!input) return;
-    const clean = input.value.replace(/\D/g, '');
-    let next = '';
-    for (const ch of clean) {
-      if (!next.includes(ch)) next += ch;
-      if (next.length === 3) break;
-    }
-    input.value = next;
+    const used = new Set(input.value.split(''));
+    document.querySelectorAll('.nbKey[data-number]').forEach((button) => {
+      button.disabled = finished || used.has(button.dataset.number);
+      button.classList.toggle('used', used.has(button.dataset.number));
+    });
+    const submit = document.getElementById('nbSubmit');
+    if (submit) submit.disabled = finished || input.value.length !== 3;
   }
 
   function submitGuess() {
     const input = document.getElementById('nbInput');
-    if (!input || finished) return;
-    enforceInput();
-    if (input.value.length !== 3) {
-      setResult('서로 다른 숫자 3개를 입력해 주세요.', 'bad');
-      return;
-    }
+    if (!input || finished || input.value.length !== 3) return;
 
     const guessText = input.value;
     const guess = guessText.split('').map(Number);
@@ -175,15 +165,16 @@
       }
       setResult(`정답! ${guessText} · ${tries.length}번 만에 맞혔어요 🎉`, 'ok');
       updateStats();
+      syncKeypad();
       celebrate();
-      document.querySelectorAll('.nbKey,.nbSubmit').forEach((el) => { el.disabled = true; });
-      input.disabled = true;
+      document.getElementById('nbBackspace')?.setAttribute('disabled', '');
+      document.getElementById('nbClear')?.setAttribute('disabled', '');
       return;
     }
 
     if (result.strikes === 0 && result.balls === 0) setResult(`${guessText} · OUT`, 'out');
     else setResult(`${guessText} · ${result.strikes}S ${result.balls}B`, '');
-    input.focus();
+    syncKeypad();
   }
 
   function appendHistory(item) {
