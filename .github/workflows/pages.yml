@@ -51,6 +51,7 @@ jobs:
               ('css', './sudoku-timer.css'),
               ('css', './sudoku-assist.css'),
               ('css', './minesweeper.css'),
+              ('css', './number-baseball.css'),
               ('js', './wordsearch-interaction.js'),
               ('js', './wordsearch-hint.js'),
               ('js', './portal-sudoku.js'),
@@ -60,6 +61,7 @@ jobs:
               ('js', './sudoku-assist.js'),
               ('js', './sudoku-autofill.js'),
               ('js', './minesweeper.js'),
+              ('js', './number-baseball.js'),
           ]
 
           for kind, path in assets:
@@ -79,6 +81,7 @@ jobs:
               f'<link rel="stylesheet" href="./sudoku-timer.css?v={version}">',
               f'<link rel="stylesheet" href="./sudoku-assist.css?v={version}">',
               f'<link rel="stylesheet" href="./minesweeper.css?v={version}">',
+              f'<link rel="stylesheet" href="./number-baseball.css?v={version}">',
           ]
           s = s.replace('</head>', '\n'.join(links) + '\n</head>')
 
@@ -92,6 +95,7 @@ jobs:
               f'<script src="./sudoku-assist.js?v={version}"></script>',
               f'<script src="./sudoku-autofill.js?v={version}"></script>',
               f'<script src="./minesweeper.js?v={version}"></script>',
+              f'<script src="./number-baseball.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 
