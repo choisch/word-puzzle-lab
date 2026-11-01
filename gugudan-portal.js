@@ -69,7 +69,7 @@
     card.type = 'button';
     card.className = 'portalCard';
     card.dataset.game = 'gugudan-speed';
-    card.innerHTML = '<span class="portalIcon">×</span><h3>구구단 스피드</h3><p>18문제씩 4세트로 빠르게 연습해요.</p><span class="portalGo"><span>시작하기</span><span>›</span></span>';
+    card.innerHTML = '<span class="portalIcon">×</span><h3>구구단 스피드</h3><p>쉬운 문제부터 18문제씩 4세트로 연습해요.</p><span class="portalGo"><span>시작하기</span><span>›</span></span>';
     card.addEventListener('click', enterGame);
     grid.appendChild(card);
   }
