@@ -6,109 +6,238 @@
   <meta name="theme-color" content="#f7f9fd" />
   <title>구구단 스피드 챌린지</title>
   <style>
-    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: linear-gradient(145deg,#f6f8ff 0%,#f1f8ff 56%,#fff8f5 100%); color: #172c46; min-height: 100dvh; }
-    button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    button:focus-visible { outline: 3px solid #6185f4; outline-offset: 3px; }
-    [hidden] { display: none !important; }
-    .gg-app { width: min(100%, 600px); margin: 0 auto; padding: 22px 17px max(24px, env(safe-area-inset-bottom)); }
-    .gg-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 21px; }
-    .gg-brand { display: flex; align-items: center; gap: 12px; }
-    .gg-logo { height: 44px; width: 44px; display: grid; place-items: center; border-radius: 14px; background: linear-gradient(130deg,#ff886e,#ff5e67); color: white; font-size: 22px; font-weight: 900; box-shadow: 0 6px 15px #ff7a782d; }
-    .gg-brand-title { font-size: 18px; letter-spacing: -.05em; font-weight: 850; line-height: 1.25; }
-    .gg-brand-sub { font-size: 11px; color: #8492a6; font-weight: 600; margin-top: 3px; letter-spacing: .09em; }
-    .gg-tag { font-size: 12px; font-weight: 700; border-radius: 999px; background: #fff; border: 1px solid #e8edf8; padding: 9px 11px; color: #63768b; }
-    .gg-panel { background: #fff; border: 1px solid #e9eef7; border-radius: 26px; box-shadow: 0 14px 44px rgba(40,62,103,.07); overflow: hidden; }
-    .gg-setup { padding: 30px 27px 26px; }
-    .gg-hero-icon { font-size: 42px; line-height: 1; margin-bottom: 20px; }
-    .gg-eyebrow { color: #ff7067; font-size: 12px; font-weight: 850; letter-spacing: .14em; margin-bottom: 8px; }
-    h1, h2, p { margin-top: 0; }
-    .gg-setup h1 { font-size: 28px; font-weight: 900; line-height: 1.35; letter-spacing: -.055em; margin-bottom: 12px; }
-    .gg-desc { font-size: 14px; line-height: 1.8; color: #728299; margin-bottom: 23px; }
-    .gg-info { display: flex; gap: 11px; margin: 18px 0 27px; }
-    .gg-infobox { flex: 1; padding: 16px 10px; border-radius: 17px; background: #f5f8fd; text-align: center; }
-    .gg-infobox strong { display: block; font-size: 22px; color: #233e69; font-weight: 900; }
-    .gg-infobox span { color: #7d8ea4; font-size: 12px; font-weight: 650; }
-    .gg-sectionlabel { font-size: 14px; font-weight: 850; margin-bottom: 11px; }
-    .gg-limits { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
-    .gg-limit { background: #f6f8fc; padding: 13px 5px; border: 1.5px solid #edf1f7; border-radius: 14px; font-weight: 800; color: #73829a; }
-    .gg-limit[aria-pressed="true"] { background: #e9efff; border-color: #7198f8; color: #3767df; box-shadow: inset 0 0 0 1px #7198f8; }
-    .gg-tip { color: #98a4b5; font-size: 12px; margin-bottom: 23px; }
-    .gg-primary { background: linear-gradient(110deg,#4d7af4,#6c87f9); color: white; border: 0; font-weight: 850; font-size: 16px; border-radius: 16px; min-height: 57px; width: 100%; box-shadow: 0 8px 16px #6282e434; }
-    .gg-primary:active, .gg-key:active { transform: translateY(1px) scale(.99); }
-    .gg-secondary { background: #f4f7fc; border: 1px solid #e4ebf5; color: #50647c; font-weight: 780; border-radius: 15px; min-height: 50px; width: 100%; }
-    .gg-coverage { margin-top: 17px; text-align: center; color: #92a0ae; font-size: 12px; }
-    .gg-game { padding: 20px; }
-    .gg-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .gg-statbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 15px; }
-    .gg-stat { background: #f5f8fc; border-radius: 12px; text-align: center; padding: 10px 5px; }
-    .gg-stat strong { display: block; font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
-    .gg-stat span { font-size: 11px; font-weight: 750; color: #8b97a7; }
-    .gg-stat.good strong { color: #11a47f; }
-    .gg-stat.bad strong { color: #fb6973; }
-    .gg-stat.time strong { color: #e69c4a; }
-    .gg-progress-head { display: flex; justify-content: space-between; font-size: 12px; color: #8290a3; font-weight: 800; margin-bottom: 8px; }
-    .gg-track { height: 8px; border-radius: 100px; background: #ecf1f9; overflow: hidden; }
-    .gg-fill { height: 100%; width: 0; background: linear-gradient(90deg,#689cf9,#5c7ff6); border-radius: 50px; transition: width .25s; }
-    .gg-question { margin: 22px 0 15px; background: linear-gradient(136deg,#f6f9ff,#fefeff); border: 1px solid #eaf0fa; border-radius: 24px; padding: 23px 18px 18px; text-align: center; }
-    .gg-qtop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; min-height: 69px; }
-    .gg-qmeta { text-align: left; font-size: 12px; color: #7f8fa5; font-weight: 800; }
-    .gg-qmeta strong { color: #415e89; display:block; font-size: 14px; margin-top: 4px; }
-    .gg-timer { width: 69px; height: 69px; background: conic-gradient(#6486f2 var(--remain,100%),#e5eaf4 0); border-radius: 50%; display: grid; place-items: center; flex: none; }
-    .gg-timer-inner { background: #fff; width: 58px; height: 58px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .gg-timer-number { font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; font-weight: 950; color: #426ad6; }
-    .gg-timer-unit { font-size: 10px; font-weight: 800; color: #9aa6b6; }
-    .gg-timer.urgent { background: conic-gradient(#fa6870 var(--remain,100%),#fde4e6 0); }
-    .gg-timer.urgent .gg-timer-number { color: #f25c64; }
-    .gg-expression { font-size: clamp(50px,12vw,72px); letter-spacing: -.075em; font-weight: 900; line-height: 1.08; margin: 3px 0 13px; color: #213d68; font-variant-numeric: tabular-nums; }
-    .gg-answer { margin: 0 auto; height: 54px; min-width: 137px; width: max-content; padding: 5px 22px; border-radius: 14px; background: white; border: 2px solid #ccdafa; box-shadow: 0 4px 13px #7196fa16; display: flex; gap: 12px; align-items: center; justify-content: center; }
-    .gg-answer-caption { color: #a4afbd; font-size: 13px; font-weight: 760; }
-    .gg-answer-number { font-size: 28px; font-weight: 850; font-variant-numeric: tabular-nums; color: #4470e7; min-width: 21px; }
-    .gg-answer-number.empty { color: #b9c6df; }
-    .gg-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-    .gg-key { border: 1px solid #e6ecf5; background: #fff; min-height: 58px; border-radius: 16px; color: #263d5c; font-size: 24px; font-weight: 850; box-shadow: 0 3px 0 #e7edf6; }
-    .gg-key.erase { color: #728397; background: #f5f7fb; font-size: 20px; }
-    .gg-key.zero { grid-column: span 2; }
-    .gg-gamebottom { display: flex; align-items: center; justify-content: space-between; margin-top: 17px; gap: 10px; }
-    .gg-small { font-size: 11px; color: #9da8b5; line-height: 1.5; }
-    .gg-textbtn { background: transparent; border: none; color: #8795a9; font-size: 12px; font-weight: 700; padding: 7px; white-space: nowrap; }
-    .gg-feedback { margin: 9px 0 0; padding: 14px 15px; min-height: 69px; background: #eafaf3; border: 1px solid #c9f0e2; border-radius: 14px; text-align: center; }
-    .gg-feedback strong { display: block; font-size: 20px; color: #0fa17a; }
-    .gg-feedback span { font-size: 13px; font-weight: 750; color: #47866f; }
-    .gg-feedback.miss { background: #fff2f1; border-color: #ffdddd; }
-    .gg-feedback.miss strong { color: #ed6371; }
-    .gg-feedback.miss span { color: #ba6a71; }
-    .gg-feedback.timeout { background: #fff7ed; border-color: #ffe7c7; }
-    .gg-feedback.timeout strong { color: #cc8b2d; }
-    .gg-feedback.timeout span { color: #a48151; }
-    .gg-end { padding: 29px 23px 24px; }
-    .gg-end-icon { font-size: 48px; margin-bottom: 13px; text-align: center; }
-    .gg-end h2 { text-align: center; font-size: 26px; font-weight: 900; letter-spacing: -.055em; margin-bottom: 7px; }
-    .gg-end-sub { text-align: center; font-size: 13px; color: #8291a4; line-height: 1.7; margin-bottom: 19px; }
-    .gg-end-score { text-align: center; padding: 23px 14px; background: #f4f7ff; border-radius: 20px; margin-bottom: 12px; }
-    .gg-end-score strong { font-size: 58px; font-weight: 950; letter-spacing: -.08em; color: #456fe1; font-variant-numeric: tabular-nums; }
-    .gg-end-score small { color: #8b99b2; font-size: 16px; font-weight: 800; margin-left: 4px; }
-    .gg-end-score div { font-size: 13px; color: #7387a9; font-weight: 750; }
-    .gg-end-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 20px; }
-    .gg-end-stats div { border: 1px solid #e9eff7; background: #fff; border-radius: 13px; text-align: center; padding: 12px 3px; }
-    .gg-end-stats strong { font-size: 22px; font-weight: 900; display: block; }
-    .gg-end-stats span { font-size: 12px; color: #8e9aaa; font-weight: 750; }
-    .gg-miss-title { font-size: 14px; font-weight: 850; margin: 5px 0 11px; }
-    .gg-mistakes { max-height: 205px; overflow-y: auto; margin-bottom: 21px; border: 1px solid #edf1f8; border-radius: 14px; }
-    .gg-missrow { padding: 12px 13px; display: flex; justify-content: space-between; align-items: center; gap: 9px; font-size: 14px; border-bottom: 1px solid #edf1f8; }
-    .gg-missrow:last-child { border-bottom: none; }
-    .gg-missrow strong { color: #253e63; }
-    .gg-missrow span { color: #ad7181; font-size: 12px; font-weight: 750; }
-    .gg-end-actions { display: grid; gap: 10px; }
-    @media (max-width: 400px) { .gg-app {padding: 14px 11px 20px;} .gg-header {margin-bottom: 13px;} .gg-panel {border-radius: 20px;} .gg-setup {padding: 23px 19px;} .gg-game {padding: 14px;} .gg-question {padding: 17px 12px 14px; margin: 15px 0 12px;} .gg-key {min-height: 53px;} .gg-pad {gap: 8px;} .gg-expression {font-size: 55px;} .gg-answer {height: 49px;} }
-    @media (prefers-reduced-motion: reduce) { *, *::after, *::before {transition-duration: .01ms !important;} }
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+/* Puzzle Lab design tokens - shared visual language with Sudoku and Number Baseball. */
+:root {
+  color-scheme: light;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  --gg-bg: #f3f2ec;
+  --gg-surface: #fcfcfa;
+  --gg-white: #fff;
+  --gg-soft: #f8f7f3;
+  --gg-line: #ebe9e0;
+  --gg-line-strong: #e6e3d6;
+  --gg-ink: #352719;
+  --gg-muted: #8d7861;
+  --gg-subtle: #958574;
+  --gg-brand: #008441;
+  --gg-brand-light: #f1faf4;
+  --gg-brand-line: #d1f4dc;
+  --gg-red: #bf0029;
+  --gg-red-light: #fdf5f5;
+  --gg-orange: #9a6429;
+}
+* { box-sizing: border-box; }
+html { background: var(--gg-bg); }
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--gg-bg);
+  color: var(--gg-ink);
+  font-family: inherit;
+  letter-spacing: -.01em;
+}
+button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:focus-visible { outline: 2px solid var(--gg-brand); outline-offset: 2px; }
+[hidden] { display: none !important; }
+h1, h2, p { margin-top: 0; }
+.gg-app { width: min(100%, 700px); margin: 0 auto; padding: 10px 9px 20px; }
+.gg-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin: 0 0 10px; min-height: 34px;
+}
+.gg-brand { display: flex; align-items: center; min-width: 0; gap: 8px; }
+.gg-logo {
+  width: 28px; height: 28px; display: grid; place-items: center; flex: none;
+  border: 1px solid var(--gg-brand-line); border-radius: 7px;
+  background: var(--gg-brand-light); color: var(--gg-brand);
+  font-size: 18px; font-weight: 750;
+}
+.gg-brand-title { font-size: 14px; line-height: 17px; font-weight: 680; letter-spacing: -.025em; }
+.gg-brand-sub { margin-top: 2px; color: var(--gg-subtle); font-size: 9px; letter-spacing: .045em; font-weight: 520; }
+.gg-tag {
+  padding: 6px 9px; flex: none;
+  border: 1px solid var(--gg-line); border-radius: 7px;
+  background: var(--gg-surface); color: var(--gg-muted);
+  font-size: 10px; font-weight: 630;
+}
+.gg-panel {
+  border: 1px solid var(--gg-line); border-radius: 10px;
+  background: var(--gg-surface);
+  box-shadow: 0 1px 2px rgba(53,39,25,.028);
+}
+.gg-setup { padding: 24px 25px 22px; }
+.gg-hero-icon { display: none; }
+.gg-eyebrow {
+  margin-bottom: 7px; color: var(--gg-subtle);
+  font-size: 10px; line-height: 14px; font-weight: 680; letter-spacing: .055em;
+}
+.gg-setup h1 { margin-bottom: 10px; font-size: 24px; line-height: 1.28; letter-spacing: -.045em; font-weight: 750; }
+.gg-desc { margin-bottom: 19px; color: var(--gg-muted); font-size: 12px; line-height: 1.7; }
+.gg-info { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin: 0 0 24px; }
+.gg-infobox {
+  min-width: 0; padding: 13px 6px 12px; text-align: center;
+  border: 1px solid var(--gg-line); border-radius: 9px; background: var(--gg-soft);
+}
+.gg-infobox strong { display: block; color: var(--gg-ink); font-size: 21px; line-height: 25px; font-weight: 740; font-variant-numeric: tabular-nums; }
+.gg-infobox span { display: block; margin-top: 3px; color: var(--gg-muted); font-size: 10px; font-weight: 590; }
+.gg-sectionlabel { margin-bottom: 9px; font-size: 12px; font-weight: 680; }
+.gg-limits { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; margin-bottom: 10px; }
+.gg-limit {
+  min-height: 42px; padding: 5px;
+  border: 1px solid var(--gg-line-strong); border-radius: 8px;
+  background: var(--gg-white); color: var(--gg-muted);
+  font-size: 12px; font-weight: 650;
+}
+.gg-limit:hover { border-color: #c5c0b4; background: var(--gg-soft); }
+.gg-limit[aria-pressed="true"] { color: var(--gg-brand); border-color: var(--gg-brand); background: var(--gg-brand-light); }
+.gg-tip { margin: 0 0 18px; color: var(--gg-subtle); font-size: 10.5px; line-height: 1.6; }
+.gg-primary, .gg-secondary {
+  display: block; width: 100%; min-height: 44px; padding: 9px 12px;
+  border-radius: 8px; font-size: 12px; font-weight: 680; box-shadow: none;
+}
+.gg-primary { border: 1px solid var(--gg-brand); background: var(--gg-brand); color: var(--gg-white); }
+.gg-primary:hover { background: #00763a; }
+.gg-secondary { border: 1px solid var(--gg-line-strong); background: var(--gg-soft); color: var(--gg-ink); }
+.gg-secondary:hover { background: var(--gg-line); }
+.gg-primary:active, .gg-secondary:active, .gg-key:active { transform: translateY(1px); }
+.gg-coverage { margin-top: 12px; text-align: center; color: var(--gg-subtle); font-size: 10px; line-height: 1.5; }
+
+.gg-game { padding: 18px 20px 16px; }
+.gg-statbar { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-bottom: 16px; }
+.gg-stat {
+  min-width: 0; padding: 9px 6px 8px; text-align: center;
+  background: var(--gg-soft); border: 1px solid var(--gg-line); border-radius: 8px;
+}
+.gg-stat strong { display: block; color: var(--gg-ink); font-size: 19px; line-height: 23px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.gg-stat span { color: var(--gg-muted); font-size: 10px; font-weight: 600; }
+.gg-stat.good strong { color: var(--gg-brand); }
+.gg-stat.bad strong { color: var(--gg-red); }
+.gg-stat.time strong { color: var(--gg-orange); }
+.gg-progress-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: 0 1px 8px; color: var(--gg-muted);
+  font-size: 11px; font-weight: 630;
+}
+.gg-track { height: 6px; overflow: hidden; border-radius: 10px; background: var(--gg-line); }
+.gg-fill { width: 0; height: 100%; border-radius: 10px; background: var(--gg-brand); transition: width .2s; }
+.gg-question {
+  max-width: 460px; margin: 15px auto 12px; padding: 18px 17px 17px;
+  border: 1px solid var(--gg-line); border-radius: 10px;
+  background: var(--gg-soft); text-align: center;
+}
+.gg-qtop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; min-height: 60px; }
+.gg-qmeta { text-align: left; color: var(--gg-muted); font-size: 10.5px; line-height: 1.5; font-weight: 550; }
+.gg-qmeta strong { display: block; margin-top: 2px; color: var(--gg-ink); font-size: 14px; font-weight: 720; }
+.gg-timer {
+  width: 60px; height: 60px; display: grid; place-items: center; flex: none;
+  border-radius: 50%; background: conic-gradient(var(--gg-brand) var(--remain,100%),var(--gg-line-strong) 0);
+}
+.gg-timer-inner {
+  width: 50px; height: 50px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--gg-white);
+}
+.gg-timer-number { color: var(--gg-brand); font-size: 17px; font-weight: 790; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.gg-timer-unit { margin-top: 2px; color: var(--gg-subtle); font-size: 9px; line-height: 1; font-weight: 570; }
+.gg-timer.urgent { background: conic-gradient(#bf0029 var(--remain,100%),#ffdbd9 0); }
+.gg-timer.urgent .gg-timer-number { color: var(--gg-red); }
+.gg-expression { margin: 1px 0 15px; color: var(--gg-ink); font-size: clamp(45px,7vw,62px); letter-spacing: -.065em; font-weight: 760; line-height: 1.16; font-variant-numeric: tabular-nums; }
+.gg-answer {
+  min-width: 126px; width: max-content; min-height: 46px; max-width: 100%;
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  margin: 0 auto; padding: 7px 18px;
+  border: 1px solid var(--gg-line-strong); border-radius: 8px;
+  background: var(--gg-white);
+}
+.gg-answer-caption { color: var(--gg-subtle); font-size: 12px; font-weight: 580; }
+.gg-answer-number { min-width: 21px; color: var(--gg-brand); font-size: 25px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.gg-answer-number.empty { color: #b9b2a6; }
+.gg-pad { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; max-width: 350px; margin: 0 auto; }
+.gg-key {
+  min-height: 51px; padding: 4px 8px;
+  border: 1px solid var(--gg-line-strong); border-radius: 8px;
+  background: var(--gg-white); color: var(--gg-ink);
+  font-size: 20px; font-weight: 710; box-shadow: none;
+}
+.gg-key:hover { background: var(--gg-soft); border-color: #c5c0b4; }
+.gg-key.erase { color: var(--gg-muted); background: var(--gg-soft); font-size: 21px; }
+.gg-key.zero { grid-column: span 2; }
+.gg-gamebottom {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 12px;
+}
+.gg-small { color: var(--gg-subtle); font-size: 10px; line-height: 1.5; }
+.gg-textbtn { border: 0; border-radius: 7px; padding: 7px 8px; background: transparent; color: var(--gg-muted); font-size: 10.5px; font-weight: 630; white-space: nowrap; }
+.gg-textbtn:hover { background: var(--gg-soft); color: var(--gg-ink); }
+.gg-feedback {
+  margin: 12px 0 0; padding: 9px 11px; min-height: 46px;
+  border: 1px solid var(--gg-brand-line); border-radius: 8px;
+  background: var(--gg-brand-light); text-align: center;
+}
+.gg-feedback strong { display: block; color: var(--gg-brand); font-size: 15px; font-weight: 730; }
+.gg-feedback span { color: var(--gg-brand); font-size: 11px; font-weight: 600; }
+.gg-feedback.miss { background: var(--gg-red-light); border-color: #ffdbd9; }
+.gg-feedback.miss strong, .gg-feedback.miss span { color: var(--gg-red); }
+.gg-feedback.timeout { background: #fff5ec; border-color: #f3dfc8; }
+.gg-feedback.timeout strong, .gg-feedback.timeout span { color: var(--gg-orange); }
+
+.gg-end { padding: 23px 22px 20px; }
+.gg-end-icon { margin-bottom: 8px; text-align: center; font-size: 30px; }
+.gg-end h2 { margin-bottom: 5px; text-align: center; color: var(--gg-ink); font-size: 22px; font-weight: 750; letter-spacing: -.03em; }
+.gg-end-sub { margin-bottom: 16px; text-align: center; color: var(--gg-muted); font-size: 11.5px; line-height: 1.7; }
+.gg-end-score { margin-bottom: 10px; padding: 17px 12px; text-align: center; background: var(--gg-soft); border: 1px solid var(--gg-line); border-radius: 9px; }
+.gg-end-score strong { color: var(--gg-brand); font-size: 49px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
+.gg-end-score small { margin-left: 3px; color: var(--gg-muted); font-size: 12px; font-weight: 600; }
+.gg-end-score div { margin-top: 5px; color: var(--gg-muted); font-size: 11px; font-weight: 620; }
+.gg-end-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-bottom: 16px; }
+.gg-end-stats div { padding: 11px 4px; text-align: center; border: 1px solid var(--gg-line); border-radius: 8px; background: var(--gg-white); }
+.gg-end-stats strong { display: block; font-size: 19px; font-weight: 750; }
+.gg-end-stats span { color: var(--gg-muted); font-size: 10px; font-weight: 580; }
+.gg-miss-title { margin: 2px 0 8px; color: var(--gg-ink); font-size: 12px; font-weight: 680; }
+.gg-mistakes { max-height: 205px; overflow-y: auto; margin-bottom: 14px; border: 1px solid var(--gg-line); border-radius: 8px; }
+.gg-missrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--gg-line); font-size: 12px; }
+.gg-missrow:last-child { border-bottom: 0; }
+.gg-missrow strong { color: var(--gg-ink); font-weight: 680; }
+.gg-missrow span { color: var(--gg-red); font-size: 11px; font-weight: 580; }
+.gg-end-actions { display: grid; gap: 7px; }
+
+@media(max-width:540px) {
+  .gg-app { padding: 7px 6px 16px; }
+  .gg-header { min-height: 30px; margin-bottom: 8px; }
+  .gg-setup { padding: 19px 16px 18px; }
+  .gg-setup h1 { font-size: 22px; }
+  .gg-desc { font-size: 11.5px; margin-bottom: 16px; }
+  .gg-info { margin-bottom: 18px; }
+  .gg-game { padding: 12px 12px 13px; }
+  .gg-statbar { margin-bottom: 12px; gap: 5px; }
+  .gg-stat { padding: 8px 4px 6px; }
+  .gg-question { margin: 12px auto 11px; padding: 13px 12px 14px; }
+  .gg-qtop { min-height: 54px; }
+  .gg-expression { font-size: clamp(42px,13vw,55px); margin-bottom: 12px; }
+  .gg-timer { width: 56px; height: 56px; }
+  .gg-timer-inner { width: 47px; height: 47px; }
+  .gg-key { min-height: 50px; }
+  .gg-pad { gap: 6px; }
+  .gg-end { padding: 20px 14px 16px; }
+}
+@media(max-width:350px) {
+  .gg-tag { padding: 5px 6px; font-size: 9px; }
+  .gg-brand-sub { display: none; }
+  .gg-limits { gap: 4px; }
+  .gg-setup { padding: 17px 12px; }
+  .gg-game { padding: 10px; }
+  .gg-key { min-height: 46px; }
+  .gg-small { max-width: 60%; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
 <main class="gg-app" id="gg-app">
   <header class="gg-header">
-    <div class="gg-brand"><div class="gg-logo">×</div><div><div class="gg-brand-title">구구단 챌린지</div><div class="gg-brand-sub">MULTIPLICATION SPRINT</div></div></div>
+    <div class="gg-brand"><div class="gg-logo">×</div><div><div class="gg-brand-title">구구단 스피드</div><div class="gg-brand-sub">MULTIPLICATION SPRINT</div></div></div>
     <div class="gg-tag">2단 ~ 9단</div>
   </header>
 
