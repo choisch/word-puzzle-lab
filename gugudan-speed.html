@@ -69,7 +69,7 @@
     .gg-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
     .gg-key { border: 1px solid #e6ecf5; background: #fff; min-height: 58px; border-radius: 16px; color: #263d5c; font-size: 24px; font-weight: 850; box-shadow: 0 3px 0 #e7edf6; }
     .gg-key.erase { color: #728397; background: #f5f7fb; font-size: 20px; }
-    .gg-key.submit { color: #fff; font-size: 17px; border: none; background: linear-gradient(115deg,#557ff4,#6a89f8); box-shadow: 0 4px 0 #3e64d3; }
+    .gg-key.zero { grid-column: span 2; }
     .gg-gamebottom { display: flex; align-items: center; justify-content: space-between; margin-top: 17px; gap: 10px; }
     .gg-small { font-size: 11px; color: #9da8b5; line-height: 1.5; }
     .gg-textbtn { background: transparent; border: none; color: #8795a9; font-size: 12px; font-weight: 700; padding: 7px; white-space: nowrap; }
@@ -125,7 +125,7 @@
       <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
-    <p class="gg-tip">시간 안에 답을 제출하지 못하면 오답으로 처리돼요.</p>
+    <p class="gg-tip">한 자리 답은 숫자 1개, 두 자리 답은 숫자 2개를 입력하면 바로 채점해요. 시간 초과는 오답이에요.</p>
     <button class="gg-primary" id="gg-start">첫 번째 18문제 시작하기 →</button>
     <div class="gg-coverage">18문제 × 4세트 · 2×1부터 9×9까지 빠짐없이</div>
   </section>
@@ -148,9 +148,9 @@
       <button class="gg-key" data-key="1">1</button><button class="gg-key" data-key="2">2</button><button class="gg-key" data-key="3">3</button>
       <button class="gg-key" data-key="4">4</button><button class="gg-key" data-key="5">5</button><button class="gg-key" data-key="6">6</button>
       <button class="gg-key" data-key="7">7</button><button class="gg-key" data-key="8">8</button><button class="gg-key" data-key="9">9</button>
-      <button class="gg-key erase" data-key="del" aria-label="한 자리 지우기">⌫</button><button class="gg-key" data-key="0">0</button><button class="gg-key submit" data-key="ok">제출 ✓</button>
+      <button class="gg-key zero" data-key="0">0</button><button class="gg-key erase" data-key="del" aria-label="한 자리 지우기">⌫</button>
     </div>
-    <div class="gg-gamebottom"><span class="gg-small">키보드 숫자 · Enter · Backspace 사용 가능</span><button class="gg-textbtn" id="gg-exit">처음으로</button></div>
+    <div class="gg-gamebottom"><span class="gg-small">숫자를 입력하면 자동 채점 · Backspace로 지우기</span><button class="gg-textbtn" id="gg-exit">처음으로</button></div>
   </section>
 
   <section class="gg-panel gg-end" id="gg-end" hidden>
@@ -281,9 +281,13 @@
   function keyPress(key) {
     if(state!=='playing') return;
     if(performance.now()>=deadline) {submit(true);return;}
-    if(key==='ok') {submit();return;}
     if(key==='del') {digits=digits.slice(0,-1); displayDigits();return;}
-    if (/^[0-9]$/.test(key) && digits.length<2) { digits+=key; displayDigits(); }
+    if (/^[0-9]$/.test(key) && digits.length<2) {
+      digits+=key;
+      displayDigits();
+      const q=pool[currentIndex];
+      if(q && digits.length>=String(q.a*q.b).length) submit();
+    }
   }
   document.querySelectorAll('.gg-limit').forEach(btn=>btn.addEventListener('click',()=>{
     limit=Number(btn.dataset.seconds);
@@ -296,7 +300,6 @@
     if(state!=='playing' || e.ctrlKey || e.altKey || e.metaKey) return;
     if (/^[0-9]$/.test(e.key)) {e.preventDefault();keyPress(e.key);}
     else if(e.key==='Backspace') {e.preventDefault();keyPress('del');}
-    else if(e.key==='Enter') {e.preventDefault();keyPress('ok');}
   });
   $('gg-exit').addEventListener('click',()=>{if(window.confirm('진행 중인 문제 풀이를 종료하고 처음으로 돌아갈까요?')){stopTimers();state='setup';showScreen('setup');}});
   $('gg-again').addEventListener('click',startSession);
