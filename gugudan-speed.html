@@ -173,7 +173,10 @@ h1, h2, p { margin-top: 0; }
 .gg-key.zero { grid-column: span 2; }
 .gg-choices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:460px;margin:0 auto; }
 .gg-choice { display:flex;align-items:center;justify-content:center;gap:12px;min-height:64px;min-width:0;padding:9px 10px;border:1px solid var(--gg-line-strong);border-radius:9px;background:var(--gg-white);color:var(--gg-ink);box-shadow:none; }
-.gg-choice:hover:not(:disabled) { border-color:var(--gg-brand);background:var(--gg-brand-light); }
+/* Do not show a sticky hover highlight after a tap on mobile devices. */
+@media(hover:hover) and (pointer:fine) {
+  .gg-choice:hover:not(:disabled) { border-color:var(--gg-brand);background:var(--gg-brand-light); }
+}
 .gg-choice:active:not(:disabled) { transform:translateY(1px); }
 .gg-choice-key { display:grid;place-items:center;flex:none;width:24px;height:24px;border:1px solid var(--gg-line);border-radius:6px;color:var(--gg-muted);background:var(--gg-soft);font-size:11px;font-weight:660; }
 .gg-choice strong { min-width:25px;text-align:center;font-size:24px;line-height:1;font-weight:740;font-variant-numeric:tabular-nums; }
@@ -399,12 +402,16 @@ h1, h2, p { margin-top: 0; }
     if (remaining<=0) submit(true);
   }
   function renderChoices(q) {
+    // Release focus from the old answer before removing its buttons.
+    // Every new question must start with four neutral, unselected choices.
+    choices.querySelectorAll('button[data-choice]').forEach(button=>button.blur());
     currentChoices=makeChoices(q);
     choices.replaceChildren();
     currentChoices.forEach((value,index)=>{
       const button=document.createElement('button');
       button.type='button';button.className='gg-choice';
       button.dataset.choice=String(value);
+      button.setAttribute('aria-pressed','false');
       const key=document.createElement('span');
       key.className='gg-choice-key';key.textContent=String(index+1);
       const number=document.createElement('strong');number.textContent=String(value);
@@ -465,6 +472,7 @@ h1, h2, p { margin-top: 0; }
       button.disabled=true;
       if(value===correctValue)button.classList.add('is-correct');
       else if(status==='wrong'&&value===Number(digits))button.classList.add('is-wrong');
+      if(!timedOut && value===Number(digits))button.setAttribute('aria-pressed','true');
     });
     answers.push({a:q.a,b:q.b,correctValue,given:digits,status}); currentIndex++;
     updateStats();
