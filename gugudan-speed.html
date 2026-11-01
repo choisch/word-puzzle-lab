@@ -92,6 +92,13 @@ h1, h2, p { margin-top: 0; }
 }
 .gg-limit:hover { border-color: #c5c0b4; background: var(--gg-soft); }
 .gg-limit[aria-pressed="true"] { color: var(--gg-brand); border-color: var(--gg-brand); background: var(--gg-brand-light); }
+.gg-modes { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 18px; }
+.gg-mode { text-align:left;min-height:60px;min-width:0;padding:10px 12px;border:1px solid var(--gg-line-strong);border-radius:8px;background:var(--gg-white);color:var(--gg-ink); }
+.gg-mode:hover { border-color:#c5c0b4;background:var(--gg-soft); }
+.gg-mode[aria-pressed="true"] { border-color:var(--gg-brand);background:var(--gg-brand-light); }
+.gg-mode strong { display:block;font-size:12px;font-weight:710; }
+.gg-mode[aria-pressed="true"] strong { color:var(--gg-brand); }
+.gg-mode span { display:block;margin-top:4px;color:var(--gg-muted);font-size:10px;line-height:1.45; }
 .gg-tip { margin: 0 0 18px; color: var(--gg-subtle); font-size: 10.5px; line-height: 1.6; }
 .gg-primary, .gg-secondary {
   display: block; width: 100%; min-height: 44px; padding: 9px 12px;
@@ -164,6 +171,17 @@ h1, h2, p { margin-top: 0; }
 .gg-key:hover { background: var(--gg-soft); border-color: #c5c0b4; }
 .gg-key.erase { color: var(--gg-muted); background: var(--gg-soft); font-size: 21px; }
 .gg-key.zero { grid-column: span 2; }
+.gg-choices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:460px;margin:0 auto; }
+.gg-choice { display:flex;align-items:center;justify-content:center;gap:12px;min-height:64px;min-width:0;padding:9px 10px;border:1px solid var(--gg-line-strong);border-radius:9px;background:var(--gg-white);color:var(--gg-ink);box-shadow:none; }
+.gg-choice:hover:not(:disabled) { border-color:var(--gg-brand);background:var(--gg-brand-light); }
+.gg-choice:active:not(:disabled) { transform:translateY(1px); }
+.gg-choice-key { display:grid;place-items:center;flex:none;width:24px;height:24px;border:1px solid var(--gg-line);border-radius:6px;color:var(--gg-muted);background:var(--gg-soft);font-size:11px;font-weight:660; }
+.gg-choice strong { min-width:25px;text-align:center;font-size:24px;line-height:1;font-weight:740;font-variant-numeric:tabular-nums; }
+.gg-choice.is-correct { border-color:var(--gg-brand);color:var(--gg-brand);background:var(--gg-brand-light); }
+.gg-choice.is-correct .gg-choice-key { border-color:var(--gg-brand-line);background:var(--gg-white);color:var(--gg-brand); }
+.gg-choice.is-wrong { border-color:#ffdbd9;color:var(--gg-red);background:var(--gg-red-light); }
+.gg-choice.is-wrong .gg-choice-key { border-color:#ffdbd9;color:var(--gg-red);background:var(--gg-white); }
+.gg-choice:disabled { cursor:default; }
 .gg-gamebottom {
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px; margin-top: 12px;
@@ -220,6 +238,9 @@ h1, h2, p { margin-top: 0; }
   .gg-timer-inner { width: 47px; height: 47px; }
   .gg-key { min-height: 50px; }
   .gg-pad { gap: 6px; }
+  .gg-choices { gap:7px; }
+  .gg-choice { min-height:61px;gap:9px; }
+  .gg-choice strong { font-size:23px; }
   .gg-end { padding: 20px 14px 16px; }
 }
 @media(max-width:350px) {
@@ -227,6 +248,9 @@ h1, h2, p { margin-top: 0; }
   .gg-brand-sub { display: none; }
   .gg-limits { gap: 4px; }
   .gg-setup { padding: 17px 12px; }
+  .gg-mode { padding:9px 8px; }
+  .gg-mode strong { font-size:11px; }
+  .gg-mode span { font-size:9px; }
   .gg-game { padding: 10px; }
   .gg-key { min-height: 46px; }
   .gg-small { max-width: 60%; }
@@ -247,6 +271,11 @@ h1, h2, p { margin-top: 0; }
     <h1>구구단, 몇 초 안에<br>풀 수 있을까요?</h1>
     <p class="gg-desc">첫 세트는 쉬운 문제로 시작해요. 뒤로 갈수록 조금씩 어려워지고, 각 세트에서는 랜덤으로 나옵니다. 총 72문제는 중복 없이 모두 출제돼요.</p>
     <div class="gg-info"><div class="gg-infobox"><strong>18</strong><span>세트당 문제</span></div><div class="gg-infobox"><strong>4</strong><span>총 세트 수</span></div><div class="gg-infobox"><strong>72</strong><span>전체 문제</span></div></div>
+    <div class="gg-sectionlabel">풀이 방식</div>
+    <div class="gg-modes" role="group" aria-label="답변 방식">
+      <button type="button" class="gg-mode" data-answer-mode="type" aria-pressed="true"><strong>숫자 입력</strong><span>직접 답 입력 · 자동 채점</span></button>
+      <button type="button" class="gg-mode" data-answer-mode="choice" aria-pressed="false"><strong>객관식</strong><span>4개 보기에서 정답 선택</span></button>
+    </div>
     <div class="gg-sectionlabel">문제당 제한시간</div>
     <div class="gg-limits" role="group" aria-label="문제당 제한시간">
       <button class="gg-limit" data-seconds="3" aria-pressed="false">3초</button>
@@ -254,7 +283,7 @@ h1, h2, p { margin-top: 0; }
       <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
-    <p class="gg-tip">한 자리 답은 숫자 1개, 두 자리 답은 숫자 2개를 입력하면 바로 채점해요. 시간 초과는 오답이에요.</p>
+    <p class="gg-tip" id="gg-tip">숫자를 입력하면 바로 채점해요. 시간 초과는 오답이에요.</p>
     <button class="gg-primary" id="gg-start">첫 번째 18문제 시작하기 →</button>
     <div class="gg-coverage">18문제 × 4세트 · 쉬움 → 도전 · 72문제 중복 없음</div>
   </section>
@@ -270,7 +299,7 @@ h1, h2, p { margin-top: 0; }
     <div class="gg-question">
       <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 18</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
       <div class="gg-expression" id="gg-expression" aria-live="polite">2 × 3</div>
-      <div class="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
+      <div class="gg-answer" id="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
       <div class="gg-feedback" id="gg-feedback" role="status" aria-live="polite" hidden><strong id="gg-feedback-title">정답!</strong><span id="gg-feedback-detail">잘했어요!</span></div>
     </div>
     <div class="gg-pad" id="gg-pad" aria-label="숫자 입력 키패드">
@@ -279,7 +308,8 @@ h1, h2, p { margin-top: 0; }
       <button class="gg-key" data-key="7">7</button><button class="gg-key" data-key="8">8</button><button class="gg-key" data-key="9">9</button>
       <button class="gg-key zero" data-key="0">0</button><button class="gg-key erase" data-key="del" aria-label="한 자리 지우기">⌫</button>
     </div>
-    <div class="gg-gamebottom"><span class="gg-small">숫자를 입력하면 자동 채점 · Backspace로 지우기</span><button class="gg-textbtn" id="gg-exit">처음으로</button></div>
+    <div class="gg-choices" id="gg-choices" aria-label="객관식 답안 선택" hidden></div>
+    <div class="gg-gamebottom"><span class="gg-small" id="gg-controls-help">숫자를 입력하면 자동 채점 · Backspace로 지우기</span><button class="gg-textbtn" id="gg-exit">처음으로</button></div>
   </section>
 
   <section class="gg-panel gg-end" id="gg-end" hidden>
@@ -287,9 +317,9 @@ h1, h2, p { margin-top: 0; }
     <h2 id="gg-end-title">1세트 완료!</h2>
     <p class="gg-end-sub" id="gg-end-sub">한 세트 18문제를 다 풀었어요.</p>
     <div class="gg-end-score"><strong id="gg-score">0</strong><small>점</small><div id="gg-score-label">정답률 0%</div></div>
-    <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:#11a47f">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:#fb6973">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:#e69c4a">0</strong><span>시간초과</span></div></div>
+    <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:var(--gg-brand)">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:var(--gg-red)">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:var(--gg-orange)">0</strong><span>시간초과</span></div></div>
     <div id="gg-miss-container" hidden><div class="gg-miss-title">다시 외워볼 문제</div><div class="gg-mistakes" id="gg-mistakes"></div></div>
-    <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 세트 시작하기 →</button><button class="gg-secondary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again" hidden>새 4세트 시작하기</button><button class="gg-textbtn" id="gg-change">제한시간 변경 · 처음으로</button></div>
+    <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 세트 시작하기 →</button><button class="gg-secondary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again" hidden>새 4세트 시작하기</button><button class="gg-textbtn" id="gg-change">모드·제한시간 변경 · 처음으로</button></div>
   </section>
 </main>
 <script>
@@ -297,7 +327,7 @@ h1, h2, p { margin-top: 0; }
   'use strict';
   const $ = id => document.getElementById(id);
   const setup = $('gg-setup'), game = $('gg-game'), end = $('gg-end');
-  const pad = $('gg-pad');
+  const pad = $('gg-pad'), choices = $('gg-choices');
   const allQuestions = [];
   for (let a=2; a<=9; a++) for (let b=1; b<=9; b++) allQuestions.push({a,b});
   const SET_SIZE=18, SET_COUNT=Math.ceil(allQuestions.length/SET_SIZE);
@@ -306,6 +336,29 @@ h1, h2, p { margin-top: 0; }
     for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];}
     return copy;
   };
+  const shuffleValues = items => {
+    const copy=[...items];
+    for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}
+    return copy;
+  };
+  // Plausible wrong answers from adjacent multiplication facts, matched by digit count.
+  const products=[...new Set(allQuestions.map(q=>q.a*q.b))];
+  function makeChoices(q) {
+    const answer=q.a*q.b, length=String(answer).length;
+    const valid=n=>n!==answer&&String(n).length===length;
+    const neighbors=[];
+    for(const d of [-2,-1,1,2]){
+      if(q.b+d>=1&&q.b+d<=9)neighbors.push(q.a*(q.b+d));
+      if(q.a+d>=2&&q.a+d<=9)neighbors.push((q.a+d)*q.b);
+    }
+    const candidates=shuffleValues([...new Set(neighbors.filter(valid))]).slice(0,3);
+    const remaining=products.filter(valid).sort((a,b)=>Math.abs(a-answer)-Math.abs(b-answer));
+    for(const value of remaining){
+      if(candidates.length===3)break;
+      if(!candidates.includes(value))candidates.push(value);
+    }
+    return shuffleValues([answer,...candidates]);
+  }
   const SET_LABELS=['워밍업','기초 확장','보통','도전'];
   // Memorization difficulty is a heuristic, not a measured user-specific score.
   // First prioritize x1, x2, and x5 facts (including the 2- and 5-times tables).
@@ -324,7 +377,7 @@ h1, h2, p { margin-top: 0; }
     ];
     return sets.flatMap(shuffle);
   }
-  let limit=5, deck=[], setIndex=0, completedSets=[], pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='set', deadline=0, interval=null, transition=null;
+  let limit=5, answerMode='type', currentChoices=[], deck=[], setIndex=0, completedSets=[], pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='set', deadline=0, interval=null, transition=null;
   const stopTimers=()=>{ if(interval!==null) {clearInterval(interval); interval=null;} if(transition!==null) {clearTimeout(transition);transition=null;} };
   const showScreen = name => {setup.hidden=name!=='setup'; game.hidden=name!=='game'; end.hidden=name!=='end';};
   const calc = () => ({correct:answers.filter(x=>x.status==='correct').length, wrong:answers.filter(x=>x.status==='wrong').length, timeout:answers.filter(x=>x.status==='timeout').length});
@@ -345,12 +398,33 @@ h1, h2, p { margin-top: 0; }
     $('gg-timer').classList.toggle('urgent',remaining<=2);
     if (remaining<=0) submit(true);
   }
+  function renderChoices(q) {
+    currentChoices=makeChoices(q);
+    choices.replaceChildren();
+    currentChoices.forEach((value,index)=>{
+      const button=document.createElement('button');
+      button.type='button';button.className='gg-choice';
+      button.dataset.choice=String(value);
+      const key=document.createElement('span');
+      key.className='gg-choice-key';key.textContent=String(index+1);
+      const number=document.createElement('strong');number.textContent=String(value);
+      button.setAttribute('aria-label',(index+1)+'번 '+value);
+      button.append(key,number);choices.appendChild(button);
+    });
+  }
+  function selectChoice(value){
+    if(state!=='playing'||answerMode!=='choice')return;
+    if(performance.now()>=deadline){submit(true);return;}
+    if(!currentChoices.includes(value))return;
+    digits=String(value);submit();
+  }
   function nextQuestion() {
     stopTimers();
     if (currentIndex>=pool.length) { finishRound(); return; }
     state='playing'; digits=''; displayDigits();
     $('gg-feedback').hidden=true;
     $('gg-expression').textContent=pool[currentIndex].a+' × '+pool[currentIndex].b;
+    if(answerMode==='choice')renderChoices(pool[currentIndex]);
     $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
     $('gg-timer').classList.remove('urgent');
     deadline=performance.now()+limit*1000;
@@ -361,6 +435,10 @@ h1, h2, p { margin-top: 0; }
     stopTimers();
     pool=roundMode==='review'?shuffle(questions):questions.map(({a,b})=>({a,b}));
     currentIndex=0; answers=[]; mode=roundMode;
+    $('gg-answer').hidden=answerMode==='choice';
+    pad.hidden=answerMode==='choice';
+    choices.hidden=answerMode!=='choice';
+    $('gg-controls-help').textContent=answerMode==='choice'?'보기 터치 또는 키보드 1~4 · 선택 즉시 채점':'숫자를 입력하면 자동 채점 · Backspace로 지우기';
     $('gg-round-label').textContent=roundMode==='review'?(setIndex+1)+'세트 오답 복습':'세트 '+(setIndex+1)+' / '+SET_COUNT+' · '+SET_LABELS[setIndex];
     showScreen('game'); updateStats(); nextQuestion();
   }
@@ -382,6 +460,12 @@ h1, h2, p { margin-top: 0; }
     if(interval!==null){clearInterval(interval);interval=null;}
     const q=pool[currentIndex], correctValue=q.a*q.b;
     const status=timedOut?'timeout':Number(digits)===correctValue?'correct':'wrong';
+    if(answerMode==='choice')choices.querySelectorAll('button[data-choice]').forEach(button=>{
+      const value=Number(button.dataset.choice);
+      button.disabled=true;
+      if(value===correctValue)button.classList.add('is-correct');
+      else if(status==='wrong'&&value===Number(digits))button.classList.add('is-wrong');
+    });
     answers.push({a:q.a,b:q.b,correctValue,given:digits,status}); currentIndex++;
     updateStats();
     const feedback=$('gg-feedback'); feedback.hidden=false; feedback.className='gg-feedback'+(status==='correct'?'':status==='timeout'?' timeout':' miss');
@@ -415,7 +499,7 @@ h1, h2, p { margin-top: 0; }
     for (const q of missed) {
       const row=document.createElement('div'); row.className='gg-missrow';
       const left=document.createElement('strong'); left.textContent=q.a+' × '+q.b+' = '+q.correctValue;
-      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':'입력 '+q.given;
+      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':(answerMode==='choice'?'선택 ':'입력 ')+q.given;
       row.append(left,right); list.append(row);
     }
     $('gg-next').hidden=allDone;
@@ -436,6 +520,11 @@ h1, h2, p { margin-top: 0; }
       if(q && digits.length>=String(q.a*q.b).length) submit();
     }
   }
+  document.querySelectorAll('.gg-mode').forEach(btn=>btn.addEventListener('click',()=>{
+    answerMode=btn.dataset.answerMode;
+    document.querySelectorAll('.gg-mode').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+    $('gg-tip').textContent=answerMode==='choice'?'4개 보기 중 답을 누르면 바로 채점해요. 시간 초과는 오답이에요.':'숫자를 입력하면 바로 채점해요. 시간 초과는 오답이에요.';
+  }));
   document.querySelectorAll('.gg-limit').forEach(btn=>btn.addEventListener('click',()=>{
     limit=Number(btn.dataset.seconds);
     document.querySelectorAll('.gg-limit').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
@@ -443,8 +532,13 @@ h1, h2, p { margin-top: 0; }
   $('gg-start').addEventListener('click',startSession);
   $('gg-next').addEventListener('click',()=>startSet(setIndex+1));
   pad.addEventListener('click',e=>{const btn=e.target.closest('button[data-key]');if(btn)keyPress(btn.dataset.key);});
+  choices.addEventListener('click',e=>{const btn=e.target.closest('button[data-choice]');if(btn)selectChoice(Number(btn.dataset.choice));});
   window.addEventListener('keydown',e=>{
     if(state!=='playing' || e.ctrlKey || e.altKey || e.metaKey) return;
+    if(answerMode==='choice'){
+      if(/^[1-4]$/.test(e.key)){e.preventDefault();selectChoice(currentChoices[Number(e.key)-1]);}
+      return;
+    }
     if (/^[0-9]$/.test(e.key)) {e.preventDefault();keyPress(e.key);}
     else if(e.key==='Backspace') {e.preventDefault();keyPress('del');}
   });
