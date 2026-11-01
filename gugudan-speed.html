@@ -116,7 +116,7 @@
     <div class="gg-hero-icon" aria-hidden="true">⚡</div>
     <div class="gg-eyebrow">준비, 시작!</div>
     <h1>구구단, 몇 초 안에<br>풀 수 있을까요?</h1>
-    <p class="gg-desc">18문제씩 4세트로 짧게 연습해요. 72문제를 한 번 섞어서 모든 세트를 마칠 때까지 중복 없이 출제합니다.</p>
+    <p class="gg-desc">첫 세트는 쉬운 문제로 시작해요. 뒤로 갈수록 조금씩 어려워지고, 각 세트에서는 랜덤으로 나옵니다. 총 72문제는 중복 없이 모두 출제돼요.</p>
     <div class="gg-info"><div class="gg-infobox"><strong>18</strong><span>세트당 문제</span></div><div class="gg-infobox"><strong>4</strong><span>총 세트 수</span></div><div class="gg-infobox"><strong>72</strong><span>전체 문제</span></div></div>
     <div class="gg-sectionlabel">문제당 제한시간</div>
     <div class="gg-limits" role="group" aria-label="문제당 제한시간">
@@ -127,7 +127,7 @@
     </div>
     <p class="gg-tip">한 자리 답은 숫자 1개, 두 자리 답은 숫자 2개를 입력하면 바로 채점해요. 시간 초과는 오답이에요.</p>
     <button class="gg-primary" id="gg-start">첫 번째 18문제 시작하기 →</button>
-    <div class="gg-coverage">18문제 × 4세트 · 2×1부터 9×9까지 빠짐없이</div>
+    <div class="gg-coverage">18문제 × 4세트 · 쉬움 → 도전 · 72문제 중복 없음</div>
   </section>
 
   <section class="gg-panel gg-game" id="gg-game" hidden>
@@ -177,6 +177,24 @@
     for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];}
     return copy;
   };
+  const SET_LABELS=['워밍업','기초 확장','보통','도전'];
+  // Memorization difficulty is a heuristic, not a measured user-specific score.
+  // First prioritize x1, x2, and x5 facts (including the 2- and 5-times tables).
+  const isEasy = q => q.a===2 || q.a===5 || q.b===1 || q.b===2 || q.b===5;
+  const isHard = q => q.a>=6 && q.b>=6;
+  function makeProgressiveDeck() {
+    const easy=shuffle(allQuestions.filter(isEasy)); // 36
+    const medium=shuffle(allQuestions.filter(q=>!isEasy(q)&&!isHard(q))); // 20
+    const hard=shuffle(allQuestions.filter(q=>isHard(q))); // 16
+    // Each set has 18 unique facts; difficulty ramps up without sacrificing randomness within sets.
+    const sets=[
+      easy.slice(0,18),
+      [...easy.slice(18,30), ...medium.slice(0,6)],
+      [...easy.slice(30), ...medium.slice(6,18)],
+      [...medium.slice(18), ...hard]
+    ];
+    return sets.flatMap(shuffle);
+  }
   let limit=5, deck=[], setIndex=0, completedSets=[], pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='set', deadline=0, interval=null, transition=null;
   const stopTimers=()=>{ if(interval!==null) {clearInterval(interval); interval=null;} if(transition!==null) {clearTimeout(transition);transition=null;} };
   const showScreen = name => {setup.hidden=name!=='setup'; game.hidden=name!=='game'; end.hidden=name!=='end';};
@@ -214,7 +232,7 @@
     stopTimers();
     pool=roundMode==='review'?shuffle(questions):questions.map(({a,b})=>({a,b}));
     currentIndex=0; answers=[]; mode=roundMode;
-    $('gg-round-label').textContent=roundMode==='review'?(setIndex+1)+'세트 오답 복습':'세트 '+(setIndex+1)+' / '+SET_COUNT;
+    $('gg-round-label').textContent=roundMode==='review'?(setIndex+1)+'세트 오답 복습':'세트 '+(setIndex+1)+' / '+SET_COUNT+' · '+SET_LABELS[setIndex];
     showScreen('game'); updateStats(); nextQuestion();
   }
   function startSet(index) {
@@ -223,7 +241,7 @@
     startRound(deck.slice(index*SET_SIZE,(index+1)*SET_SIZE),'set');
   }
   function startSession() {
-    deck=shuffle(allQuestions);
+    deck=makeProgressiveDeck();
     completedSets=[];
     startSet(0);
   }
@@ -258,7 +276,7 @@
       const totalCorrect=completedSets.reduce((sum,x)=>sum+(x?.correct||0),0);
       $('gg-end-sub').textContent='4세트, 총 72문제를 모두 풀었어요! 전체 정답 '+totalCorrect+'/72 · 아래는 마지막 세트 점수입니다.';
     } else {
-      $('gg-end-sub').textContent='전체 72문제 중 '+((setIndex+1)*SET_SIZE)+'문제 완료! 다음 세트에는 새 문제 18개가 나와요.';
+      $('gg-end-sub').textContent='전체 72문제 중 '+((setIndex+1)*SET_SIZE)+'문제 완료! 다음 세트에는 조금 더 어려운 새 문제 18개가 나와요.';
     }
     $('gg-score').textContent=score;
     $('gg-score-label').textContent=(mode==='review'?'복습':'이번 세트')+' 정답률 '+score+'% · '+s.correct+'/'+total+'문제';
