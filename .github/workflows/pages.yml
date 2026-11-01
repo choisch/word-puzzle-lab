@@ -54,6 +54,7 @@ jobs:
               ('css', './minesweeper-records.css'),
               ('css', './number-baseball.css'),
               ('css', './electric-volleyball.css'),
+              ('css', './gugudan-portal.css'),
               ('js', './wordsearch-interaction.js'),
               ('js', './wordsearch-hint.js'),
               ('js', './portal-sudoku.js'),
@@ -66,6 +67,7 @@ jobs:
               ('js', './minesweeper-records.js'),
               ('js', './number-baseball.js'),
               ('js', './electric-volleyball.js'),
+              ('js', './gugudan-portal.js'),
           ]
 
           for kind, path in assets:
@@ -88,6 +90,7 @@ jobs:
               f'<link rel="stylesheet" href="./minesweeper-records.css?v={version}">',
               f'<link rel="stylesheet" href="./number-baseball.css?v={version}">',
               f'<link rel="stylesheet" href="./electric-volleyball.css?v={version}">',
+              f'<link rel="stylesheet" href="./gugudan-portal.css?v={version}">',
           ]
           s = s.replace('</head>', '\n'.join(links) + '\n</head>')
 
@@ -104,6 +107,7 @@ jobs:
               f'<script src="./minesweeper-records.js?v={version}"></script>',
               f'<script src="./number-baseball.js?v={version}"></script>',
               f'<script src="./electric-volleyball.js?v={version}"></script>',
+              f'<script src="./gugudan-portal.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 

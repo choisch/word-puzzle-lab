@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f9fd" />
+  <title>구구단 스피드 챌린지</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: linear-gradient(145deg,#f6f8ff 0%,#f1f8ff 56%,#fff8f5 100%); color: #172c46; min-height: 100dvh; }
+    button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    button:focus-visible { outline: 3px solid #6185f4; outline-offset: 3px; }
+    [hidden] { display: none !important; }
+    .gg-app { width: min(100%, 600px); margin: 0 auto; padding: 22px 17px max(24px, env(safe-area-inset-bottom)); }
+    .gg-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 21px; }
+    .gg-brand { display: flex; align-items: center; gap: 12px; }
+    .gg-logo { height: 44px; width: 44px; display: grid; place-items: center; border-radius: 14px; background: linear-gradient(130deg,#ff886e,#ff5e67); color: white; font-size: 22px; font-weight: 900; box-shadow: 0 6px 15px #ff7a782d; }
+    .gg-brand-title { font-size: 18px; letter-spacing: -.05em; font-weight: 850; line-height: 1.25; }
+    .gg-brand-sub { font-size: 11px; color: #8492a6; font-weight: 600; margin-top: 3px; letter-spacing: .09em; }
+    .gg-tag { font-size: 12px; font-weight: 700; border-radius: 999px; background: #fff; border: 1px solid #e8edf8; padding: 9px 11px; color: #63768b; }
+    .gg-panel { background: #fff; border: 1px solid #e9eef7; border-radius: 26px; box-shadow: 0 14px 44px rgba(40,62,103,.07); overflow: hidden; }
+    .gg-setup { padding: 30px 27px 26px; }
+    .gg-hero-icon { font-size: 42px; line-height: 1; margin-bottom: 20px; }
+    .gg-eyebrow { color: #ff7067; font-size: 12px; font-weight: 850; letter-spacing: .14em; margin-bottom: 8px; }
+    h1, h2, p { margin-top: 0; }
+    .gg-setup h1 { font-size: 28px; font-weight: 900; line-height: 1.35; letter-spacing: -.055em; margin-bottom: 12px; }
+    .gg-desc { font-size: 14px; line-height: 1.8; color: #728299; margin-bottom: 23px; }
+    .gg-info { display: flex; gap: 11px; margin: 18px 0 27px; }
+    .gg-infobox { flex: 1; padding: 16px 10px; border-radius: 17px; background: #f5f8fd; text-align: center; }
+    .gg-infobox strong { display: block; font-size: 22px; color: #233e69; font-weight: 900; }
+    .gg-infobox span { color: #7d8ea4; font-size: 12px; font-weight: 650; }
+    .gg-sectionlabel { font-size: 14px; font-weight: 850; margin-bottom: 11px; }
+    .gg-limits { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
+    .gg-limit { background: #f6f8fc; padding: 13px 5px; border: 1.5px solid #edf1f7; border-radius: 14px; font-weight: 800; color: #73829a; }
+    .gg-limit[aria-pressed="true"] { background: #e9efff; border-color: #7198f8; color: #3767df; box-shadow: inset 0 0 0 1px #7198f8; }
+    .gg-tip { color: #98a4b5; font-size: 12px; margin-bottom: 23px; }
+    .gg-primary { background: linear-gradient(110deg,#4d7af4,#6c87f9); color: white; border: 0; font-weight: 850; font-size: 16px; border-radius: 16px; min-height: 57px; width: 100%; box-shadow: 0 8px 16px #6282e434; }
+    .gg-primary:active, .gg-key:active { transform: translateY(1px) scale(.99); }
+    .gg-secondary { background: #f4f7fc; border: 1px solid #e4ebf5; color: #50647c; font-weight: 780; border-radius: 15px; min-height: 50px; width: 100%; }
+    .gg-coverage { margin-top: 17px; text-align: center; color: #92a0ae; font-size: 12px; }
+    .gg-game { padding: 20px; }
+    .gg-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .gg-statbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 15px; }
+    .gg-stat { background: #f5f8fc; border-radius: 12px; text-align: center; padding: 10px 5px; }
+    .gg-stat strong { display: block; font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .gg-stat span { font-size: 11px; font-weight: 750; color: #8b97a7; }
+    .gg-stat.good strong { color: #11a47f; }
+    .gg-stat.bad strong { color: #fb6973; }
+    .gg-stat.time strong { color: #e69c4a; }
+    .gg-progress-head { display: flex; justify-content: space-between; font-size: 12px; color: #8290a3; font-weight: 800; margin-bottom: 8px; }
+    .gg-track { height: 8px; border-radius: 100px; background: #ecf1f9; overflow: hidden; }
+    .gg-fill { height: 100%; width: 0; background: linear-gradient(90deg,#689cf9,#5c7ff6); border-radius: 50px; transition: width .25s; }
+    .gg-question { margin: 22px 0 15px; background: linear-gradient(136deg,#f6f9ff,#fefeff); border: 1px solid #eaf0fa; border-radius: 24px; padding: 23px 18px 18px; text-align: center; }
+    .gg-qtop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; min-height: 69px; }
+    .gg-qmeta { text-align: left; font-size: 12px; color: #7f8fa5; font-weight: 800; }
+    .gg-qmeta strong { color: #415e89; display:block; font-size: 14px; margin-top: 4px; }
+    .gg-timer { width: 69px; height: 69px; background: conic-gradient(#6486f2 var(--remain,100%),#e5eaf4 0); border-radius: 50%; display: grid; place-items: center; flex: none; }
+    .gg-timer-inner { background: #fff; width: 58px; height: 58px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .gg-timer-number { font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; font-weight: 950; color: #426ad6; }
+    .gg-timer-unit { font-size: 10px; font-weight: 800; color: #9aa6b6; }
+    .gg-timer.urgent { background: conic-gradient(#fa6870 var(--remain,100%),#fde4e6 0); }
+    .gg-timer.urgent .gg-timer-number { color: #f25c64; }
+    .gg-expression { font-size: clamp(50px,12vw,72px); letter-spacing: -.075em; font-weight: 900; line-height: 1.08; margin: 3px 0 13px; color: #213d68; font-variant-numeric: tabular-nums; }
+    .gg-answer { margin: 0 auto; height: 54px; min-width: 137px; width: max-content; padding: 5px 22px; border-radius: 14px; background: white; border: 2px solid #ccdafa; box-shadow: 0 4px 13px #7196fa16; display: flex; gap: 12px; align-items: center; justify-content: center; }
+    .gg-answer-caption { color: #a4afbd; font-size: 13px; font-weight: 760; }
+    .gg-answer-number { font-size: 28px; font-weight: 850; font-variant-numeric: tabular-nums; color: #4470e7; min-width: 21px; }
+    .gg-answer-number.empty { color: #b9c6df; }
+    .gg-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .gg-key { border: 1px solid #e6ecf5; background: #fff; min-height: 58px; border-radius: 16px; color: #263d5c; font-size: 24px; font-weight: 850; box-shadow: 0 3px 0 #e7edf6; }
+    .gg-key.erase { color: #728397; background: #f5f7fb; font-size: 20px; }
+    .gg-key.submit { color: #fff; font-size: 17px; border: none; background: linear-gradient(115deg,#557ff4,#6a89f8); box-shadow: 0 4px 0 #3e64d3; }
+    .gg-gamebottom { display: flex; align-items: center; justify-content: space-between; margin-top: 17px; gap: 10px; }
+    .gg-small { font-size: 11px; color: #9da8b5; line-height: 1.5; }
+    .gg-textbtn { background: transparent; border: none; color: #8795a9; font-size: 12px; font-weight: 700; padding: 7px; white-space: nowrap; }
+    .gg-feedback { margin: 9px 0 0; padding: 14px 15px; min-height: 69px; background: #eafaf3; border: 1px solid #c9f0e2; border-radius: 14px; text-align: center; }
+    .gg-feedback strong { display: block; font-size: 20px; color: #0fa17a; }
+    .gg-feedback span { font-size: 13px; font-weight: 750; color: #47866f; }
+    .gg-feedback.miss { background: #fff2f1; border-color: #ffdddd; }
+    .gg-feedback.miss strong { color: #ed6371; }
+    .gg-feedback.miss span { color: #ba6a71; }
+    .gg-feedback.timeout { background: #fff7ed; border-color: #ffe7c7; }
+    .gg-feedback.timeout strong { color: #cc8b2d; }
+    .gg-feedback.timeout span { color: #a48151; }
+    .gg-end { padding: 29px 23px 24px; }
+    .gg-end-icon { font-size: 48px; margin-bottom: 13px; text-align: center; }
+    .gg-end h2 { text-align: center; font-size: 26px; font-weight: 900; letter-spacing: -.055em; margin-bottom: 7px; }
+    .gg-end-sub { text-align: center; font-size: 13px; color: #8291a4; line-height: 1.7; margin-bottom: 19px; }
+    .gg-end-score { text-align: center; padding: 23px 14px; background: #f4f7ff; border-radius: 20px; margin-bottom: 12px; }
+    .gg-end-score strong { font-size: 58px; font-weight: 950; letter-spacing: -.08em; color: #456fe1; font-variant-numeric: tabular-nums; }
+    .gg-end-score small { color: #8b99b2; font-size: 16px; font-weight: 800; margin-left: 4px; }
+    .gg-end-score div { font-size: 13px; color: #7387a9; font-weight: 750; }
+    .gg-end-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 20px; }
+    .gg-end-stats div { border: 1px solid #e9eff7; background: #fff; border-radius: 13px; text-align: center; padding: 12px 3px; }
+    .gg-end-stats strong { font-size: 22px; font-weight: 900; display: block; }
+    .gg-end-stats span { font-size: 12px; color: #8e9aaa; font-weight: 750; }
+    .gg-miss-title { font-size: 14px; font-weight: 850; margin: 5px 0 11px; }
+    .gg-mistakes { max-height: 205px; overflow-y: auto; margin-bottom: 21px; border: 1px solid #edf1f8; border-radius: 14px; }
+    .gg-missrow { padding: 12px 13px; display: flex; justify-content: space-between; align-items: center; gap: 9px; font-size: 14px; border-bottom: 1px solid #edf1f8; }
+    .gg-missrow:last-child { border-bottom: none; }
+    .gg-missrow strong { color: #253e63; }
+    .gg-missrow span { color: #ad7181; font-size: 12px; font-weight: 750; }
+    .gg-end-actions { display: grid; gap: 10px; }
+    @media (max-width: 400px) { .gg-app {padding: 14px 11px 20px;} .gg-header {margin-bottom: 13px;} .gg-panel {border-radius: 20px;} .gg-setup {padding: 23px 19px;} .gg-game {padding: 14px;} .gg-question {padding: 17px 12px 14px; margin: 15px 0 12px;} .gg-key {min-height: 53px;} .gg-pad {gap: 8px;} .gg-expression {font-size: 55px;} .gg-answer {height: 49px;} }
+    @media (prefers-reduced-motion: reduce) { *, *::after, *::before {transition-duration: .01ms !important;} }
+  </style>
+</head>
+<body>
+<main class="gg-app" id="gg-app">
+  <header class="gg-header">
+    <div class="gg-brand"><div class="gg-logo">×</div><div><div class="gg-brand-title">구구단 챌린지</div><div class="gg-brand-sub">MULTIPLICATION SPRINT</div></div></div>
+    <div class="gg-tag">2단 ~ 9단</div>
+  </header>
+
+  <section class="gg-panel gg-setup" id="gg-setup">
+    <div class="gg-hero-icon" aria-hidden="true">⚡</div>
+    <div class="gg-eyebrow">준비, 시작!</div>
+    <h1>구구단, 몇 초 안에<br>풀 수 있을까요?</h1>
+    <p class="gg-desc">문제를 무작위로 풀어보세요. 같은 문제는 한 바퀴를 다 풀기 전까지 다시 나오지 않아요.</p>
+    <div class="gg-info"><div class="gg-infobox"><strong>72</strong><span>총 문제 수</span></div><div class="gg-infobox"><strong>8</strong><span>2~9단 전체</span></div><div class="gg-infobox"><strong>0</strong><span>중복 출제</span></div></div>
+    <div class="gg-sectionlabel">문제당 제한시간</div>
+    <div class="gg-limits" role="group" aria-label="문제당 제한시간">
+      <button class="gg-limit" data-seconds="3" aria-pressed="false">3초</button>
+      <button class="gg-limit" data-seconds="5" aria-pressed="true">5초</button>
+      <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
+      <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
+    </div>
+    <p class="gg-tip">시간 안에 답을 제출하지 못하면 오답으로 처리돼요.</p>
+    <button class="gg-primary" id="gg-start">72문제 시작하기 →</button>
+    <div class="gg-coverage">2×1부터 9×9까지 빠짐없이 한 번씩</div>
+  </section>
+
+  <section class="gg-panel gg-game" id="gg-game" hidden>
+    <div class="gg-statbar">
+      <div class="gg-stat good"><strong id="gg-correct">0</strong><span>정답</span></div>
+      <div class="gg-stat bad"><strong id="gg-wrong">0</strong><span>오답</span></div>
+      <div class="gg-stat time"><strong id="gg-timeout">0</strong><span>시간초과</span></div>
+    </div>
+    <div class="gg-progress-head"><span id="gg-round-label">전체 문제</span><span id="gg-progress-text">0 / 72</span></div>
+    <div class="gg-track" aria-label="풀이 진행률"><div class="gg-fill" id="gg-progress-fill"></div></div>
+    <div class="gg-question">
+      <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 72</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
+      <div class="gg-expression" id="gg-expression" aria-live="polite">2 × 3</div>
+      <div class="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
+      <div class="gg-feedback" id="gg-feedback" role="status" aria-live="polite" hidden><strong id="gg-feedback-title">정답!</strong><span id="gg-feedback-detail">잘했어요!</span></div>
+    </div>
+    <div class="gg-pad" id="gg-pad" aria-label="숫자 입력 키패드">
+      <button class="gg-key" data-key="1">1</button><button class="gg-key" data-key="2">2</button><button class="gg-key" data-key="3">3</button>
+      <button class="gg-key" data-key="4">4</button><button class="gg-key" data-key="5">5</button><button class="gg-key" data-key="6">6</button>
+      <button class="gg-key" data-key="7">7</button><button class="gg-key" data-key="8">8</button><button class="gg-key" data-key="9">9</button>
+      <button class="gg-key erase" data-key="del" aria-label="한 자리 지우기">⌫</button><button class="gg-key" data-key="0">0</button><button class="gg-key submit" data-key="ok">제출 ✓</button>
+    </div>
+    <div class="gg-gamebottom"><span class="gg-small">키보드 숫자 · Enter · Backspace 사용 가능</span><button class="gg-textbtn" id="gg-exit">처음으로</button></div>
+  </section>
+
+  <section class="gg-panel gg-end" id="gg-end" hidden>
+    <div class="gg-end-icon" id="gg-end-icon" aria-hidden="true">🏆</div>
+    <h2 id="gg-end-title">72문제 완료!</h2>
+    <p class="gg-end-sub" id="gg-end-sub">모든 구구단 문제를 빠짐없이 풀었어요.</p>
+    <div class="gg-end-score"><strong id="gg-score">0</strong><small>점</small><div id="gg-score-label">정답률 0%</div></div>
+    <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:#11a47f">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:#fb6973">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:#e69c4a">0</strong><span>시간초과</span></div></div>
+    <div id="gg-miss-container" hidden><div class="gg-miss-title">다시 외워볼 문제</div><div class="gg-mistakes" id="gg-mistakes"></div></div>
+    <div class="gg-end-actions"><button class="gg-primary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again">전체 72문제 다시 풀기</button><button class="gg-textbtn" id="gg-change">제한시간 변경 · 처음으로</button></div>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const setup = $('gg-setup'), game = $('gg-game'), end = $('gg-end');
+  const pad = $('gg-pad');
+  const allQuestions = [];
+  for (let a=2; a<=9; a++) for (let b=1; b<=9; b++) allQuestions.push({a,b});
+  const shuffle = items => { const copy=items.map(({a,b})=>({a,b})); for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];} return copy; };
+  let limit=5, pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='all', deadline=0, interval=null, transition=null;
+  const stopTimers=()=>{ if(interval!==null) {clearInterval(interval); interval=null;} if(transition!==null) {clearTimeout(transition);transition=null;} };
+  const showScreen = name => {setup.hidden=name!=='setup'; game.hidden=name!=='game'; end.hidden=name!=='end';};
+  const calc = () => ({correct:answers.filter(x=>x.status==='correct').length, wrong:answers.filter(x=>x.status==='wrong').length, timeout:answers.filter(x=>x.status==='timeout').length});
+  function updateStats() {
+    const s=calc(); $('gg-correct').textContent=s.correct; $('gg-wrong').textContent=s.wrong; $('gg-timeout').textContent=s.timeout;
+    $('gg-progress-text').textContent=`${answers.length} / ${pool.length}`;
+    $('gg-progress-fill').style.width=`${pool.length ? answers.length/pool.length*100 : 0}%`;
+  }
+  function displayDigits() {
+    $('gg-value').textContent=digits||'?';
+    $('gg-value').classList.toggle('empty',!digits);
+  }
+  function updateClock() {
+    if(state!=='playing') return;
+    const remaining=Math.max(0,(deadline-performance.now())/1000);
+    $('gg-seconds-left').textContent=remaining.toFixed(1);
+    $('gg-timer').style.setProperty('--remain',`${Math.min(100,remaining/limit*100)}%`);
+    $('gg-timer').classList.toggle('urgent',remaining<=2);
+    if (remaining<=0) submit(true);
+  }
+  function nextQuestion() {
+    stopTimers();
+    if (currentIndex>=pool.length) { finishRound(); return; }
+    state='playing'; digits=''; displayDigits();
+    $('gg-feedback').hidden=true;
+    $('gg-expression').textContent=`${pool[currentIndex].a} × ${pool[currentIndex].b}`;
+    $('gg-question-idx').textContent=`${currentIndex+1} / ${pool.length}`;
+    $('gg-timer').classList.remove('urgent');
+    deadline=performance.now()+limit*1000;
+    updateClock();
+    interval=setInterval(updateClock,35);
+  }
+  function startRound(questions, roundMode) {
+    stopTimers();
+    pool=shuffle(questions); currentIndex=0; answers=[]; mode=roundMode;
+    $('gg-round-label').textContent=roundMode==='review'?'틀린 문제 복습':'전체 문제';
+    showScreen('game'); updateStats(); nextQuestion();
+  }
+  function submit(timedOut=false) {
+    if(state!=='playing') return;
+    if (performance.now()>=deadline) timedOut=true;
+    if (!timedOut && digits==='') return;
+    state='feedback';
+    if(interval!==null){clearInterval(interval);interval=null;}
+    const q=pool[currentIndex], correctValue=q.a*q.b;
+    const status=timedOut?'timeout':Number(digits)===correctValue?'correct':'wrong';
+    answers.push({a:q.a,b:q.b,correctValue,given:digits,status}); currentIndex++;
+    updateStats();
+    const feedback=$('gg-feedback'); feedback.hidden=false; feedback.className='gg-feedback'+(status==='correct'?'':status==='timeout'?' timeout':' miss');
+    $('gg-feedback-title').textContent=status==='correct'?'정답! 🎉':status==='timeout'?'시간 초과! ⏰':'아쉬워요!';
+    $('gg-feedback-detail').textContent=status==='correct'?`${q.a} × ${q.b} = ${correctValue}`:status==='timeout'?`정답은 ${correctValue}이에요`:`정답은 ${correctValue}이에요 (입력: ${digits})`;
+    $('gg-timer').style.setProperty('--remain','0%');
+    $('gg-seconds-left').textContent=status==='timeout'?'0.0':$('gg-seconds-left').textContent;
+    transition=setTimeout(nextQuestion,status==='correct'?700:1450);
+  }
+  function finishRound() {
+    stopTimers(); state='end'; showScreen('end');
+    const s=calc(), total=pool.length, missed=answers.filter(x=>x.status!=='correct');
+    const score=Math.round(s.correct/total*100);
+    $('gg-end-icon').textContent=score===100?'🏆':score>=80?'🌟':'👏';
+    $('gg-end-title').textContent=mode==='review'?'복습 완료!':'72문제 완료!';
+    $('gg-end-sub').textContent=mode==='review'?`틀린 문제 ${total}개를 다시 풀었어요.`:'2단부터 9단까지, 72문제를 모두 풀었어요.';
+    $('gg-score').textContent=score; $('gg-score-label').textContent=`정답률 ${score}% · ${s.correct}/${total}문제`;
+    $('gg-end-correct').textContent=s.correct; $('gg-end-wrong').textContent=s.wrong; $('gg-end-timeout').textContent=s.timeout;
+    $('gg-miss-container').hidden=missed.length===0;
+    const list=$('gg-mistakes'); list.replaceChildren();
+    for (const q of missed) {
+      const row=document.createElement('div'); row.className='gg-missrow';
+      const left=document.createElement('strong'); left.textContent=`${q.a} × ${q.b} = ${q.correctValue}`;
+      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':`입력 ${q.given}`;
+      row.append(left,right); list.append(row);
+    }
+    $('gg-retry').hidden=missed.length===0;
+    $('gg-retry').textContent=`틀린 ${missed.length}문제 다시 풀기 →`;
+    $('gg-retry').onclick=()=>startRound(missed,'review');
+  }
+  function keyPress(key) {
+    if(state!=='playing') return;
+    if(performance.now()>=deadline) {submit(true);return;}
+    if(key==='ok') {submit();return;}
+    if(key==='del') {digits=digits.slice(0,-1); displayDigits();return;}
+    if (/^[0-9]$/.test(key) && digits.length<2) { digits+=key; displayDigits(); }
+  }
+  document.querySelectorAll('.gg-limit').forEach(btn=>btn.addEventListener('click',()=>{
+    limit=Number(btn.dataset.seconds);
+    document.querySelectorAll('.gg-limit').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+  }));
+  $('gg-start').addEventListener('click',()=>startRound(allQuestions,'all'));
+  pad.addEventListener('click',e=>{const btn=e.target.closest('button[data-key]');if(btn)keyPress(btn.dataset.key);});
+  window.addEventListener('keydown',e=>{
+    if(state!=='playing' || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (/^[0-9]$/.test(e.key)) {e.preventDefault();keyPress(e.key);}
+    else if(e.key==='Backspace') {e.preventDefault();keyPress('del');}
+    else if(e.key==='Enter') {e.preventDefault();keyPress('ok');}
+  });
+  $('gg-exit').addEventListener('click',()=>{if(window.confirm('진행 중인 문제 풀이를 종료하고 처음으로 돌아갈까요?')){stopTimers();state='setup';showScreen('setup');}});
+  $('gg-again').addEventListener('click',()=>startRound(allQuestions,'all'));
+  $('gg-change').addEventListener('click',()=>{stopTimers();state='setup';showScreen('setup');});
+  // Avoid punishing the learner if the browser/tab is hidden.
+  let hiddenAt=null;
+  document.addEventListener('visibilitychange',()=>{
+    if(state!=='playing') return;
+    if(document.hidden) hiddenAt=performance.now();
+    else if(hiddenAt!==null) {deadline+=performance.now()-hiddenAt;hiddenAt=null;updateClock();}
+  });
+})();
+</script>
+</body>
+</html>
