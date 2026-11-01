@@ -356,7 +356,7 @@ h1, h2, p { margin-top: 0; }
       <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
-    <p class="gg-tip" id="gg-tip">문제가 한 글자씩 나타났다가 사라져요. 기억해서 답해주세요. 시간 초과는 오답이에요.</p>
+    <p class="gg-tip" id="gg-tip">1~4단계는 문제가 계속 보입니다. 끝판왕에서만 문제가 잠깐 나왔다가 사라져요.</p>
     <button class="gg-primary" id="gg-start">1단계 도전하기 →</button>
     <div class="gg-coverage">진행 상황은 이 브라우저에 저장됩니다. <button type="button" id="gg-reset" class="gg-reset">처음부터 다시</button></div>
   </section>
@@ -410,13 +410,7 @@ h1, h2, p { margin-top: 0; }
 
   const STAGE_SIZE=18, STAGE_COUNT=4, BOSS_INDEX=4;
   const STAGE_NAMES=['워밍업','기초 확장','집중력 테스트','최종 관문','끝판왕'];
-  const FLASH=[
-    {step:330,hold:900},
-    {step:275,hold:700},
-    {step:225,hold:550},
-    {step:180,hold:420},
-    {step:145,hold:250}
-  ];
+  const BOSS_FLASH={step:145,hold:250};
   const STORE_KEY='gugudan_quest_progress_v1';
 
   const shuffle=items=>{
@@ -584,12 +578,13 @@ h1, h2, p { margin-top: 0; }
     choices.hidden=!visible||answerMode!=='choice';
   }
 
-  // The countdown starts after the question finishes its reveal and disappears.
+  // Normal stages: show the full question and begin the timer immediately.
+  // Only the final boss reveals and hides the prompt before the timer starts.
   function updateTick(){
     if(document.hidden)return;
     if(state==='revealing'){
       const elapsed=Math.max(0,performance.now()-revealStarted);
-      const flash=FLASH[activeStage],fullAt=Array.from(revealText).length*flash.step;
+      const flash=BOSS_FLASH,fullAt=Array.from(revealText).length*flash.step;
       const letters=Math.min(Array.from(revealText).length,Math.floor(elapsed/flash.step)+1);
       if(elapsed<fullAt+flash.hold){
         $('gg-expression').textContent=Array.from(revealText).slice(0,letters).join('');
@@ -616,22 +611,35 @@ h1, h2, p { margin-top: 0; }
   function nextQuestion(){
     stopTimers();
     if(currentIndex>=pool.length){finishRound();return;}
-    state='revealing';
     digits='';displayDigits();
     $('gg-feedback').hidden=true;
-    const q=pool[currentIndex];
+    const q=pool[currentIndex], boss=activeStage===BOSS_INDEX;
     revealText=q.a+' × '+q.b;
-    revealStarted=performance.now();
     $('gg-expression').classList.remove('is-hidden');
-    $('gg-expression').textContent='';
-    $('gg-memory-hint').textContent='곧 문제가 나타납니다';
     $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
     $('gg-timer').classList.remove('urgent');
     $('gg-timer').style.setProperty('--remain','100%');
-    $('gg-seconds-left').textContent='–';
-    $('gg-timer-unit').textContent='곧 시작';
+    $('gg-memory-hint').hidden=!boss;
     if(answerMode==='choice')renderChoices(q);
-    displayInputs(false);
+    if(boss){
+      // Final boss: each character appears, the full question disappears,
+      // and only then does the answering timer begin.
+      state='revealing';
+      revealStarted=performance.now();
+      $('gg-expression').textContent='';
+      $('gg-memory-hint').textContent='곧 문제가 나타납니다';
+      $('gg-seconds-left').textContent='–';
+      $('gg-timer-unit').textContent='곧 시작';
+      displayInputs(false);
+    }else{
+      // Stages 1–4: keep the entire question visible until the answer is judged.
+      state='playing';
+      $('gg-expression').textContent=revealText;
+      $('gg-seconds-left').textContent=stageLimit.toFixed(1);
+      $('gg-timer-unit').textContent='남은 초';
+      deadline=performance.now()+stageLimit*1000;
+      displayInputs(true);
+    }
     updateTick();
     interval=setInterval(updateTick,35);
   }
@@ -754,9 +762,10 @@ h1, h2, p { margin-top: 0; }
   document.querySelectorAll('.gg-mode').forEach(button=>button.addEventListener('click',()=>{
     answerMode=button.dataset.answerMode;
     document.querySelectorAll('.gg-mode').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-    $('gg-tip').textContent=answerMode==='choice'?
-      '문제를 기억한 뒤 보기 4개 중 답을 고르세요. 시간 초과는 오답이에요.':
-      '문제를 기억하고 숫자로 답하세요. 마지막 숫자를 누르면 채점합니다.';
+    $('gg-tip').textContent=(answerMode==='choice'?
+      '보기 4개 중 정답을 선택하세요. ':
+      '숫자를 입력하면 자동으로 채점합니다. ')+
+      '1~4단계는 문제가 계속 보이고, 끝판왕에서만 잠깐 나타났다 사라져요.';
   }));
   document.querySelectorAll('.gg-limit').forEach(button=>button.addEventListener('click',()=>{
     limit=Number(button.dataset.seconds);
