@@ -371,7 +371,7 @@ h1, h2, p { margin-top: 0; }
     <div class="gg-progress-head"><span id="gg-round-label">1 / 4세트</span><span id="gg-progress-text">0 / 18</span></div>
     <div class="gg-track" aria-label="풀이 진행률"><div class="gg-fill" id="gg-progress-fill"></div></div>
     <div class="gg-question">
-      <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 18</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
+      <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 18</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit" id="gg-timer-unit">남은 초</div></div></div></div>
       <div class="gg-expression" id="gg-expression" aria-live="off">2 × 3</div>
       <div class="gg-memory-hint" id="gg-memory-hint">한 글자씩 나타나는 문제를 기억하세요</div>
       <div class="gg-answer" id="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
@@ -400,26 +400,87 @@ h1, h2, p { margin-top: 0; }
 <script>
 (() => {
   'use strict';
+
   const $ = id => document.getElementById(id);
-  const setup = $('gg-setup'), game = $('gg-game'), end = $('gg-end');
-  const pad = $('gg-pad'), choices = $('gg-choices');
-  const allQuestions = [];
-  for (let a=2; a<=9; a++) for (let b=1; b<=9; b++) allQuestions.push({a,b});
-  const SET_SIZE=18, SET_COUNT=Math.ceil(allQuestions.length/SET_SIZE);
-  const shuffle = items => {
+  const setup=$('gg-setup'), game=$('gg-game'), end=$('gg-end');
+  const pad=$('gg-pad'), choices=$('gg-choices');
+  const stageButtons=[...document.querySelectorAll('.gg-level')];
+  const allQuestions=[];
+  for(let a=2;a<=9;a++)for(let b=1;b<=9;b++)allQuestions.push({a,b});
+
+  const STAGE_SIZE=18, STAGE_COUNT=4, BOSS_INDEX=4;
+  const STAGE_NAMES=['워밍업','기초 확장','집중력 테스트','최종 관문','끝판왕'];
+  const FLASH=[
+    {step:330,hold:900},
+    {step:275,hold:700},
+    {step:225,hold:550},
+    {step:180,hold:420},
+    {step:145,hold:250}
+  ];
+  const STORE_KEY='gugudan_quest_progress_v1';
+
+  const shuffle=items=>{
     const copy=items.map(({a,b})=>({a,b}));
-    for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];}
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
     return copy;
   };
-  const shuffleValues = items => {
+  const shuffleValues=items=>{
     const copy=[...items];
-    for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
     return copy;
   };
-  // Plausible wrong answers from adjacent multiplication facts, matched by digit count.
+  const easy=q=>q.a===2||q.a===5||[1,2,5].includes(q.b);
+  const hard=q=>q.a>=6&&q.b>=6;
+  function makeProgressiveDeck(){
+    const e=shuffle(allQuestions.filter(easy)); // 36
+    const m=shuffle(allQuestions.filter(q=>!easy(q)&&!hard(q))); // 20
+    const h=shuffle(allQuestions.filter(hard)); // 16
+    return [
+      e.slice(0,18),
+      [...e.slice(18,30),...m.slice(0,6)],
+      [...e.slice(30),...m.slice(6,18)],
+      [...m.slice(18),...h]
+    ].flatMap(shuffle);
+  }
+  function freshProgress(){
+    return {deck:makeProgressiveDeck(),cleared:[false,false,false,false,false]};
+  }
+  function validDeck(deck){
+    const keys=new Set(allQuestions.map(q=>q.a+'x'+q.b));
+    return Array.isArray(deck) && deck.length===72 &&
+      deck.every(q=>q && Number.isInteger(q.a) && Number.isInteger(q.b) && keys.has(q.a+'x'+q.b)) &&
+      new Set(deck.map(q=>q.a+'x'+q.b)).size===72;
+  }
+  function loadProgress(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem(STORE_KEY));
+      if(parsed && validDeck(parsed.deck) && Array.isArray(parsed.cleared) && parsed.cleared.length===5){
+        const cleared=parsed.cleared.map(v=>v===true);
+        // A later stage cannot be cleared before all earlier stages.
+        for(let i=1;i<cleared.length;i++)if(!cleared[i-1])cleared[i]=false;
+        return {deck:parsed.deck,cleared};
+      }
+    }catch(error){/* Private browsing or disabled storage: continue in memory. */}
+    return freshProgress();
+  }
+  let progress=loadProgress();
+  function saveProgress(){
+    try{localStorage.setItem(STORE_KEY,JSON.stringify(progress))}catch(error){/* Continue in memory. */}
+  }
+  function unlockedStage(){
+    for(let i=0;i<progress.cleared.length;i++)if(!progress.cleared[i])return i;
+    return BOSS_INDEX;
+  }
+
   const products=[...new Set(allQuestions.map(q=>q.a*q.b))];
-  function makeChoices(q) {
-    const answer=q.a*q.b, length=String(answer).length;
+  function makeChoices(q){
+    const answer=q.a*q.b,length=String(answer).length;
     const valid=n=>n!==answer&&String(n).length===length;
     const neighbors=[];
     for(const d of [-2,-1,1,2]){
@@ -434,62 +495,248 @@ h1, h2, p { margin-top: 0; }
     }
     return shuffleValues([answer,...candidates]);
   }
-  const SET_LABELS=['워밍업','기초 확장','보통','도전'];
-  // Memorization difficulty is a heuristic, not a measured user-specific score.
-  // First prioritize x1, x2, and x5 facts (including the 2- and 5-times tables).
-  const isEasy = q => q.a===2 || q.a===5 || q.b===1 || q.b===2 || q.b===5;
-  const isHard = q => q.a>=6 && q.b>=6;
-  function makeProgressiveDeck() {
-    const easy=shuffle(allQuestions.filter(isEasy)); // 36
-    const medium=shuffle(allQuestions.filter(q=>!isEasy(q)&&!isHard(q))); // 20
-    const hard=shuffle(allQuestions.filter(q=>isHard(q))); // 16
-    // Each set has 18 unique facts; difficulty ramps up without sacrificing randomness within sets.
-    const sets=[
-      easy.slice(0,18),
-      [...easy.slice(18,30), ...medium.slice(0,6)],
-      [...easy.slice(30), ...medium.slice(6,18)],
-      [...medium.slice(18), ...hard]
-    ];
-    return sets.flatMap(shuffle);
+
+  let limit=5,answerMode='type',selectedStage=unlockedStage(),activeStage=0;
+  let pool=[],answers=[],pendingMissed=[],currentIndex=0,currentChoices=[],digits='';
+  let state='setup',mode='stage',deadline=0,interval=null,transition=null;
+  let revealStarted=0,revealText='',stageLimit=limit;
+
+  function stopTimers(){
+    if(interval!==null){clearInterval(interval);interval=null;}
+    if(transition!==null){clearTimeout(transition);transition=null;}
   }
-  let limit=5, answerMode='type', currentChoices=[], deck=[], setIndex=0, completedSets=[], pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='set', deadline=0, interval=null, transition=null;
-  const stopTimers=()=>{ if(interval!==null) {clearInterval(interval); interval=null;} if(transition!==null) {clearTimeout(transition);transition=null;} };
-  const showScreen = name => {setup.hidden=name!=='setup'; game.hidden=name!=='game'; end.hidden=name!=='end';};
-  const calc = () => ({correct:answers.filter(x=>x.status==='correct').length, wrong:answers.filter(x=>x.status==='wrong').length, timeout:answers.filter(x=>x.status==='timeout').length});
-  function updateStats() {
-    const s=calc(); $('gg-correct').textContent=s.correct; $('gg-wrong').textContent=s.wrong; $('gg-timeout').textContent=s.timeout;
+  function showScreen(name){
+    setup.hidden=name!=='setup';
+    game.hidden=name!=='game';
+    end.hidden=name!=='end';
+  }
+  function updateStageMap(){
+    const unlocked=unlockedStage();
+    stageButtons.forEach((button,i)=>{
+      const cleared=progress.cleared[i]===true;
+      const locked=i>unlocked;
+      button.disabled=locked;
+      button.setAttribute('aria-pressed',String(i===selectedStage));
+      button.classList.toggle('is-cleared',cleared);
+      const label=button.querySelector('.gg-level-state');
+      if(label)label.textContent=cleared?'클리어 ✓':locked?'잠김':i===4?'끝판왕 도전 가능':'도전 가능';
+      if(i===4 && locked && label)label.textContent='4단계 완료 후 해금';
+    });
+    const count=progress.cleared.slice(0,4).filter(Boolean).length;
+    $('gg-clear-count').textContent=count+' / 4단계 클리어';
+    $('gg-unlock-status').textContent=progress.cleared[4]?'끝판왕까지 클리어!':
+      unlocked===4?'끝판왕 해금!':(unlocked+1)+'단계 도전 가능';
+    $('gg-start').textContent=selectedStage===4?
+      (progress.cleared[4]?'끝판왕 다시 도전하기 →':'끝판왕 도전하기 →'):
+      (progress.cleared[selectedStage]?(selectedStage+1)+'단계 다시 하기 →':(selectedStage+1)+'단계 도전하기 →');
+  }
+  function showSetup(preferNext=false){
+    stopTimers();
+    state='setup';
+    if(preferNext && progress.cleared[activeStage] && activeStage<4)selectedStage=activeStage+1;
+    if(selectedStage>unlockedStage())selectedStage=unlockedStage();
+    updateStageMap();
+    showScreen('setup');
+  }
+
+  function calc(){
+    return {
+      correct:answers.filter(x=>x.status==='correct').length,
+      wrong:answers.filter(x=>x.status==='wrong').length,
+      timeout:answers.filter(x=>x.status==='timeout').length
+    };
+  }
+  function updateStats(){
+    const s=calc();
+    $('gg-correct').textContent=s.correct;
+    $('gg-wrong').textContent=s.wrong;
+    $('gg-timeout').textContent=s.timeout;
     $('gg-progress-text').textContent=answers.length+' / '+pool.length;
-    $('gg-progress-fill').style.width=(pool.length ? answers.length/pool.length*100 : 0)+'%';
+    $('gg-progress-fill').style.width=(pool.length?answers.length/pool.length*100:0)+'%';
   }
-  function displayDigits() {
+  function displayDigits(){
     $('gg-value').textContent=digits||'?';
     $('gg-value').classList.toggle('empty',!digits);
   }
-  function updateClock() {
-    if(state!=='playing' || document.hidden) return;
-    const remaining=Math.max(0,(deadline-performance.now())/1000);
-    $('gg-seconds-left').textContent=remaining.toFixed(1);
-    $('gg-timer').style.setProperty('--remain',Math.min(100,remaining/limit*100)+'%');
-    $('gg-timer').classList.toggle('urgent',remaining<=2);
-    if (remaining<=0) submit(true);
-  }
-  function renderChoices(q) {
-    // Release focus from the old answer before removing its buttons.
-    // Every new question must start with four neutral, unselected choices.
+  function renderChoices(q){
     choices.querySelectorAll('button[data-choice]').forEach(button=>button.blur());
     currentChoices=makeChoices(q);
     choices.replaceChildren();
     currentChoices.forEach((value,index)=>{
       const button=document.createElement('button');
-      button.type='button';button.className='gg-choice';
+      button.type='button';
+      button.className='gg-choice';
       button.dataset.choice=String(value);
       button.setAttribute('aria-pressed','false');
-      const key=document.createElement('span');
-      key.className='gg-choice-key';key.textContent=String(index+1);
-      const number=document.createElement('strong');number.textContent=String(value);
       button.setAttribute('aria-label',(index+1)+'번 '+value);
-      button.append(key,number);choices.appendChild(button);
+      const key=document.createElement('span');
+      key.className='gg-choice-key';
+      key.textContent=String(index+1);
+      const number=document.createElement('strong');
+      number.textContent=String(value);
+      button.append(key,number);
+      choices.appendChild(button);
     });
+  }
+  function displayInputs(visible){
+    $('gg-answer').hidden=!visible||answerMode==='choice';
+    pad.hidden=!visible||answerMode==='choice';
+    choices.hidden=!visible||answerMode!=='choice';
+  }
+
+  // The countdown starts after the question finishes its reveal and disappears.
+  function updateTick(){
+    if(document.hidden)return;
+    if(state==='revealing'){
+      const elapsed=Math.max(0,performance.now()-revealStarted);
+      const flash=FLASH[activeStage],fullAt=Array.from(revealText).length*flash.step;
+      const letters=Math.min(Array.from(revealText).length,Math.floor(elapsed/flash.step)+1);
+      if(elapsed<fullAt+flash.hold){
+        $('gg-expression').textContent=Array.from(revealText).slice(0,letters).join('');
+        $('gg-memory-hint').textContent=elapsed<fullAt?'문제가 한 글자씩 나타납니다':'문제를 기억하세요!';
+      }else{
+        $('gg-expression').textContent='?';
+        $('gg-expression').classList.add('is-hidden');
+        $('gg-memory-hint').textContent='방금 나온 곱셈의 정답은?';
+        $('gg-timer-unit').textContent='남은 초';
+        state='playing';
+        deadline=performance.now()+stageLimit*1000;
+        displayInputs(true);
+      }
+    }
+    if(state==='playing'){
+      const remaining=Math.max(0,(deadline-performance.now())/1000);
+      $('gg-seconds-left').textContent=remaining.toFixed(1);
+      $('gg-timer').style.setProperty('--remain',Math.min(100,remaining/stageLimit*100)+'%');
+      $('gg-timer').classList.toggle('urgent',remaining<=2);
+      if(remaining<=0)submit(true);
+    }
+  }
+
+  function nextQuestion(){
+    stopTimers();
+    if(currentIndex>=pool.length){finishRound();return;}
+    state='revealing';
+    digits='';displayDigits();
+    $('gg-feedback').hidden=true;
+    const q=pool[currentIndex];
+    revealText=q.a+' × '+q.b;
+    revealStarted=performance.now();
+    $('gg-expression').classList.remove('is-hidden');
+    $('gg-expression').textContent='';
+    $('gg-memory-hint').textContent='곧 문제가 나타납니다';
+    $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
+    $('gg-timer').classList.remove('urgent');
+    $('gg-timer').style.setProperty('--remain','100%');
+    $('gg-seconds-left').textContent='–';
+    $('gg-timer-unit').textContent='곧 시작';
+    if(answerMode==='choice')renderChoices(q);
+    displayInputs(false);
+    updateTick();
+    interval=setInterval(updateTick,35);
+  }
+  function startRound(questions,roundMode){
+    stopTimers();
+    mode=roundMode;
+    pool=roundMode==='retry'?shuffle(questions):questions.map(({a,b})=>({a,b}));
+    answers=[];currentIndex=0;
+    stageLimit=activeStage===BOSS_INDEX?Math.min(limit,5):limit;
+    game.classList.toggle('is-boss',activeStage===BOSS_INDEX);
+    $('gg-stage-badge').textContent=activeStage===BOSS_INDEX?'★ FINAL BOSS · 끝판왕':'STAGE '+String(activeStage+1).padStart(2,'0')+' · '+STAGE_NAMES[activeStage];
+    $('gg-round-label').textContent=(roundMode==='retry'?'남은 문제 재도전 · ':'')+(activeStage===BOSS_INDEX?'끝판왕':(activeStage+1)+'단계 · '+STAGE_NAMES[activeStage]);
+    $('gg-controls-help').textContent=answerMode==='choice'?'보기 터치 또는 키보드 1~4 · 정답 선택':'숫자 입력 · Backspace로 지우기';
+    showScreen('game');updateStats();nextQuestion();
+  }
+  function startStage(index){
+    if(index>unlockedStage()||index<0||index>BOSS_INDEX)return;
+    activeStage=index;selectedStage=index;pendingMissed=[];
+    const questions=index===BOSS_INDEX?
+      shuffle(allQuestions.filter(hard)).slice(0,12):
+      progress.deck.slice(index*STAGE_SIZE,(index+1)*STAGE_SIZE);
+    startRound(questions,'stage');
+  }
+  function submit(timedOut=false){
+    if(state!=='playing')return;
+    if(performance.now()>=deadline)timedOut=true;
+    if(!timedOut&&digits==='')return;
+    state='feedback';
+    if(interval!==null){clearInterval(interval);interval=null;}
+    const q=pool[currentIndex],correctValue=q.a*q.b;
+    const status=timedOut?'timeout':Number(digits)===correctValue?'correct':'wrong';
+    if(answerMode==='choice')choices.querySelectorAll('button[data-choice]').forEach(button=>{
+      const value=Number(button.dataset.choice);
+      button.disabled=true;
+      if(value===correctValue)button.classList.add('is-correct');
+      else if(status==='wrong'&&value===Number(digits))button.classList.add('is-wrong');
+      if(!timedOut&&value===Number(digits))button.setAttribute('aria-pressed','true');
+    });
+    answers.push({a:q.a,b:q.b,correctValue,given:digits,status});
+    currentIndex++;updateStats();
+    $('gg-expression').classList.remove('is-hidden');
+    $('gg-expression').textContent=q.a+' × '+q.b;
+    $('gg-memory-hint').textContent='문제 확인';
+    const feedback=$('gg-feedback');
+    feedback.hidden=false;
+    feedback.className='gg-feedback'+(status==='correct'?'':status==='timeout'?' timeout':' miss');
+    $('gg-feedback-title').textContent=status==='correct'?'정답! ✓':status==='timeout'?'시간 초과!':'아쉬워요!';
+    $('gg-feedback-detail').textContent=status==='correct'?
+      q.a+' × '+q.b+' = '+correctValue:
+      status==='timeout'?'정답은 '+correctValue+'이에요':
+      '정답은 '+correctValue+'이에요 ('+(answerMode==='choice'?'선택: ':'입력: ')+digits+')';
+    $('gg-timer').style.setProperty('--remain','0%');
+    $('gg-seconds-left').textContent=timedOut?'0.0':$('gg-seconds-left').textContent;
+    transition=setTimeout(nextQuestion,status==='correct'?700:1450);
+  }
+  function finishRound(){
+    stopTimers();state='end';showScreen('end');
+    const stats=calc(),missed=answers.filter(x=>x.status!=='correct');
+    pendingMissed=missed.map(q=>({a:q.a,b:q.b}));
+    const stageCleared=missed.length===0,previouslyCleared=progress.cleared[activeStage];
+    if(stageCleared){
+      progress.cleared[activeStage]=true;
+      saveProgress();
+    }
+    end.classList.toggle('is-victory',stageCleared);
+    end.classList.toggle('is-boss-clear',stageCleared&&activeStage===BOSS_INDEX);
+    end.classList.toggle('is-failed',!stageCleared);
+    const score=Math.round(stats.correct/pool.length*100);
+    $('gg-end-icon').textContent=stageCleared?(activeStage===BOSS_INDEX?'👑':'🏆'):'⚔️';
+    $('gg-end-title').textContent=stageCleared?
+      (activeStage===BOSS_INDEX?'끝판왕 격파!':(activeStage+1)+'단계 클리어!'):
+      '아직 '+missed.length+'문제 남았어요';
+    $('gg-end-sub').textContent=stageCleared?
+      (activeStage===BOSS_INDEX?'모든 단계를 정복했습니다! 언제든 다시 도전할 수 있어요.':activeStage===3?'4단계를 모두 깼습니다. 이제 끝판왕에 도전하세요!':(activeStage+2)+'단계 잠금이 해제됐습니다!'):
+      '틀리거나 시간 초과된 '+missed.length+'문제를 모두 맞히면 다음 단계로 갈 수 있어요.';
+    $('gg-score').textContent=score;
+    $('gg-score-label').textContent='이번 도전 정답률 '+score+'% · '+stats.correct+'/'+pool.length+'문제';
+    $('gg-end-correct').textContent=stats.correct;
+    $('gg-end-wrong').textContent=stats.wrong;
+    $('gg-end-timeout').textContent=stats.timeout;
+    $('gg-miss-container').hidden=missed.length===0;
+    const list=$('gg-mistakes');list.replaceChildren();
+    for(const q of missed){
+      const row=document.createElement('div');row.className='gg-missrow';
+      const left=document.createElement('strong');left.textContent=q.a+' × '+q.b+' = '+q.correctValue;
+      const right=document.createElement('span');right.textContent=q.status==='timeout'?'시간초과':(answerMode==='choice'?'선택 ':'입력 ')+q.given;
+      row.append(left,right);list.append(row);
+    }
+    $('gg-retry').hidden=stageCleared;
+    $('gg-retry').textContent='남은 '+missed.length+'문제 다시 도전 →';
+    $('gg-next').hidden=!stageCleared||activeStage===BOSS_INDEX;
+    $('gg-next').textContent=activeStage===3?'끝판왕 도전하기 →':(activeStage+2)+'단계 시작하기 →';
+    $('gg-again').textContent=activeStage===BOSS_INDEX?'끝판왕 다시 도전':'이 단계 처음부터 다시 도전';
+    // Replaying an already-cleared stage must never undo previous unlocks.
+    if(previouslyCleared&&stageCleared)saveProgress();
+  }
+  function keyPress(key){
+    if(state!=='playing'||answerMode!=='type')return;
+    if(performance.now()>=deadline){submit(true);return;}
+    if(key==='del'){digits=digits.slice(0,-1);displayDigits();return;}
+    if(/^[0-9]$/.test(key)&&digits.length<2){
+      digits+=key;displayDigits();
+      const q=pool[currentIndex];
+      if(q&&digits.length>=String(q.a*q.b).length)submit();
+    }
   }
   function selectChoice(value){
     if(state!=='playing'||answerMode!=='choice')return;
@@ -497,140 +744,71 @@ h1, h2, p { margin-top: 0; }
     if(!currentChoices.includes(value))return;
     digits=String(value);submit();
   }
-  function nextQuestion() {
-    stopTimers();
-    if (currentIndex>=pool.length) { finishRound(); return; }
-    state='playing'; digits=''; displayDigits();
-    $('gg-feedback').hidden=true;
-    $('gg-expression').textContent=pool[currentIndex].a+' × '+pool[currentIndex].b;
-    if(answerMode==='choice')renderChoices(pool[currentIndex]);
-    $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
-    $('gg-timer').classList.remove('urgent');
-    deadline=performance.now()+limit*1000;
-    updateClock();
-    interval=setInterval(updateClock,35);
-  }
-  function startRound(questions, roundMode) {
-    stopTimers();
-    pool=roundMode==='review'?shuffle(questions):questions.map(({a,b})=>({a,b}));
-    currentIndex=0; answers=[]; mode=roundMode;
-    $('gg-answer').hidden=answerMode==='choice';
-    pad.hidden=answerMode==='choice';
-    choices.hidden=answerMode!=='choice';
-    $('gg-controls-help').textContent=answerMode==='choice'?'보기 터치 또는 키보드 1~4 · 선택 즉시 채점':'숫자를 입력하면 자동 채점 · Backspace로 지우기';
-    $('gg-round-label').textContent=roundMode==='review'?(setIndex+1)+'세트 오답 복습':'세트 '+(setIndex+1)+' / '+SET_COUNT+' · '+SET_LABELS[setIndex];
-    showScreen('game'); updateStats(); nextQuestion();
-  }
-  function startSet(index) {
-    if(index<0 || index>=SET_COUNT || deck.length!==allQuestions.length) return;
-    setIndex=index;
-    startRound(deck.slice(index*SET_SIZE,(index+1)*SET_SIZE),'set');
-  }
-  function startSession() {
-    deck=makeProgressiveDeck();
-    completedSets=[];
-    startSet(0);
-  }
-  function submit(timedOut=false) {
-    if(state!=='playing') return;
-    if(performance.now()>=deadline) timedOut=true;
-    if (!timedOut && digits==='') return;
-    state='feedback';
-    if(interval!==null){clearInterval(interval);interval=null;}
-    const q=pool[currentIndex], correctValue=q.a*q.b;
-    const status=timedOut?'timeout':Number(digits)===correctValue?'correct':'wrong';
-    if(answerMode==='choice')choices.querySelectorAll('button[data-choice]').forEach(button=>{
-      const value=Number(button.dataset.choice);
-      button.disabled=true;
-      if(value===correctValue)button.classList.add('is-correct');
-      else if(status==='wrong'&&value===Number(digits))button.classList.add('is-wrong');
-      if(!timedOut && value===Number(digits))button.setAttribute('aria-pressed','true');
-    });
-    answers.push({a:q.a,b:q.b,correctValue,given:digits,status}); currentIndex++;
-    updateStats();
-    const feedback=$('gg-feedback'); feedback.hidden=false; feedback.className='gg-feedback'+(status==='correct'?'':status==='timeout'?' timeout':' miss');
-    $('gg-feedback-title').textContent=status==='correct'?'정답! 🎉':status==='timeout'?'시간 초과! ⏰':'아쉬워요!';
-    $('gg-feedback-detail').textContent=status==='correct'?q.a+' × '+q.b+' = '+correctValue:status==='timeout'?'정답은 '+correctValue+'이에요':'정답은 '+correctValue+'이에요 (입력: '+digits+')';
-    $('gg-timer').style.setProperty('--remain','0%');
-    $('gg-seconds-left').textContent=status==='timeout'?'0.0':$('gg-seconds-left').textContent;
-    transition=setTimeout(nextQuestion,status==='correct'?700:1450);
-  }
-  function finishRound() {
-    stopTimers(); state='end'; showScreen('end');
-    const s=calc(), total=pool.length, missed=answers.filter(x=>x.status!=='correct');
-    const score=Math.round(s.correct/total*100);
-    if(mode==='set') completedSets[setIndex]={correct:s.correct,wrong:s.wrong,timeout:s.timeout};
-    const allDone=setIndex===SET_COUNT-1;
-    $('gg-end-icon').textContent=score===100?'🏆':score>=80?'🌟':'👏';
-    $('gg-end-title').textContent=mode==='review'?'오답 복습 완료!':(setIndex+1)+'세트 완료!';
-    if(mode==='review'){
-      $('gg-end-sub').textContent='틀렸던 '+total+'문제를 다시 풀었어요.'+(allDone?' 4세트 모두 완료한 상태입니다.':' 다음 세트로 넘어갈 수 있어요.');
-    } else if(allDone){
-      const totalCorrect=completedSets.reduce((sum,x)=>sum+(x?.correct||0),0);
-      $('gg-end-sub').textContent='4세트, 총 72문제를 모두 풀었어요! 전체 정답 '+totalCorrect+'/72 · 아래는 마지막 세트 점수입니다.';
-    } else {
-      $('gg-end-sub').textContent='전체 72문제 중 '+((setIndex+1)*SET_SIZE)+'문제 완료! 다음 세트에는 조금 더 어려운 새 문제 18개가 나와요.';
-    }
-    $('gg-score').textContent=score;
-    $('gg-score-label').textContent=(mode==='review'?'복습':'이번 세트')+' 정답률 '+score+'% · '+s.correct+'/'+total+'문제';
-    $('gg-end-correct').textContent=s.correct; $('gg-end-wrong').textContent=s.wrong; $('gg-end-timeout').textContent=s.timeout;
-    $('gg-miss-container').hidden=missed.length===0;
-    const list=$('gg-mistakes'); list.replaceChildren();
-    for (const q of missed) {
-      const row=document.createElement('div'); row.className='gg-missrow';
-      const left=document.createElement('strong'); left.textContent=q.a+' × '+q.b+' = '+q.correctValue;
-      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':(answerMode==='choice'?'선택 ':'입력 ')+q.given;
-      row.append(left,right); list.append(row);
-    }
-    $('gg-next').hidden=allDone;
-    $('gg-next').textContent='다음 세트 ('+(setIndex+2)+'/'+SET_COUNT+') 시작하기 →';
-    $('gg-retry').hidden=missed.length===0;
-    $('gg-retry').textContent='틀린 '+missed.length+'문제 다시 풀기 →';
-    $('gg-retry').onclick=()=>startRound(missed,'review');
-    $('gg-again').hidden=!allDone;
-  }
-  function keyPress(key) {
-    if(state!=='playing') return;
-    if(performance.now()>=deadline) {submit(true);return;}
-    if(key==='del') {digits=digits.slice(0,-1); displayDigits();return;}
-    if (/^[0-9]$/.test(key) && digits.length<2) {
-      digits+=key;
-      displayDigits();
-      const q=pool[currentIndex];
-      if(q && digits.length>=String(q.a*q.b).length) submit();
-    }
-  }
-  document.querySelectorAll('.gg-mode').forEach(btn=>btn.addEventListener('click',()=>{
-    answerMode=btn.dataset.answerMode;
-    document.querySelectorAll('.gg-mode').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
-    $('gg-tip').textContent=answerMode==='choice'?'4개 보기 중 답을 누르면 바로 채점해요. 시간 초과는 오답이에요.':'숫자를 입력하면 바로 채점해요. 시간 초과는 오답이에요.';
+
+  stageButtons.forEach(button=>button.addEventListener('click',()=>{
+    const index=Number(button.dataset.stage);
+    if(index>unlockedStage()||index<0)return;
+    selectedStage=index;updateStageMap();
   }));
-  document.querySelectorAll('.gg-limit').forEach(btn=>btn.addEventListener('click',()=>{
-    limit=Number(btn.dataset.seconds);
-    document.querySelectorAll('.gg-limit').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+  document.querySelectorAll('.gg-mode').forEach(button=>button.addEventListener('click',()=>{
+    answerMode=button.dataset.answerMode;
+    document.querySelectorAll('.gg-mode').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+    $('gg-tip').textContent=answerMode==='choice'?
+      '문제를 기억한 뒤 보기 4개 중 답을 고르세요. 시간 초과는 오답이에요.':
+      '문제를 기억하고 숫자로 답하세요. 마지막 숫자를 누르면 채점합니다.';
   }));
-  $('gg-start').addEventListener('click',startSession);
-  $('gg-next').addEventListener('click',()=>startSet(setIndex+1));
-  pad.addEventListener('click',e=>{const btn=e.target.closest('button[data-key]');if(btn)keyPress(btn.dataset.key);});
-  choices.addEventListener('click',e=>{const btn=e.target.closest('button[data-choice]');if(btn)selectChoice(Number(btn.dataset.choice));});
+  document.querySelectorAll('.gg-limit').forEach(button=>button.addEventListener('click',()=>{
+    limit=Number(button.dataset.seconds);
+    document.querySelectorAll('.gg-limit').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+  }));
+  $('gg-start').addEventListener('click',()=>startStage(selectedStage));
+  $('gg-retry').addEventListener('click',()=>{if(pendingMissed.length)startRound(pendingMissed,'retry');});
+  $('gg-next').addEventListener('click',()=>startStage(activeStage+1));
+  $('gg-again').addEventListener('click',()=>startStage(activeStage));
+  $('gg-change').addEventListener('click',()=>showSetup(true));
+  $('gg-exit').addEventListener('click',()=>{
+    if(window.confirm('이번 도전을 종료하고 단계 선택으로 돌아갈까요?'))showSetup();
+  });
+  $('gg-reset').addEventListener('click',()=>{
+    if(!window.confirm('모든 단계의 클리어 기록을 지우고 1단계부터 다시 시작할까요?'))return;
+    progress=freshProgress();
+    saveProgress();
+    selectedStage=0;
+    showSetup();
+  });
+  pad.addEventListener('click',e=>{
+    const button=e.target.closest('button[data-key]');
+    if(button)keyPress(button.dataset.key);
+  });
+  choices.addEventListener('click',e=>{
+    const button=e.target.closest('button[data-choice]');
+    if(button)selectChoice(Number(button.dataset.choice));
+  });
   window.addEventListener('keydown',e=>{
-    if(state!=='playing' || e.ctrlKey || e.altKey || e.metaKey) return;
+    if(state!=='playing'||e.ctrlKey||e.altKey||e.metaKey)return;
     if(answerMode==='choice'){
-      if(/^[1-4]$/.test(e.key)){e.preventDefault();selectChoice(currentChoices[Number(e.key)-1]);}
+      if(/^[1-4]$/.test(e.key)){
+        e.preventDefault();
+        selectChoice(currentChoices[Number(e.key)-1]);
+      }
       return;
     }
-    if (/^[0-9]$/.test(e.key)) {e.preventDefault();keyPress(e.key);}
-    else if(e.key==='Backspace') {e.preventDefault();keyPress('del');}
+    if(/^[0-9]$/.test(e.key)){e.preventDefault();keyPress(e.key);}
+    else if(e.key==='Backspace'){e.preventDefault();keyPress('del');}
   });
-  $('gg-exit').addEventListener('click',()=>{if(window.confirm('진행 중인 문제 풀이를 종료하고 처음으로 돌아갈까요?')){stopTimers();state='setup';showScreen('setup');}});
-  $('gg-again').addEventListener('click',startSession);
-  $('gg-change').addEventListener('click',()=>{stopTimers();state='setup';showScreen('setup');});
   let hiddenAt=null;
   document.addEventListener('visibilitychange',()=>{
-    if(state!=='playing') {hiddenAt=null; return;}
-    if(document.hidden) hiddenAt=performance.now();
-    else if(hiddenAt!==null) {deadline+=performance.now()-hiddenAt;hiddenAt=null;updateClock();}
+    if(state!=='playing'&&state!=='revealing'){hiddenAt=null;return;}
+    if(document.hidden)hiddenAt=performance.now();
+    else if(hiddenAt!==null){
+      const delta=performance.now()-hiddenAt;
+      if(state==='playing')deadline+=delta;
+      if(state==='revealing')revealStarted+=delta;
+      hiddenAt=null;
+      updateTick();
+    }
   });
+  showSetup();
 })();
 </script>
 </body>
