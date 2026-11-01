@@ -216,6 +216,11 @@ h1, h2, p { margin-top: 0; }
 .gg-end-stats div { padding: 11px 4px; text-align: center; border: 1px solid var(--gg-line); border-radius: 8px; background: var(--gg-white); }
 .gg-end-stats strong { display: block; font-size: 19px; font-weight: 750; }
 .gg-end-stats span { color: var(--gg-muted); font-size: 10px; font-weight: 580; }
+.gg-end-average { display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 16px;padding:11px 13px;border:1px solid var(--gg-line);border-radius:8px;background:var(--gg-soft); }
+.gg-end-average-copy { display:flex;flex-direction:column;gap:3px; }
+.gg-end-average-copy strong { color:var(--gg-ink);font-size:12px;font-weight:700; }
+.gg-end-average-copy small { color:var(--gg-muted);font-size:10px;font-weight:520; }
+#gg-end-average-time { color:var(--gg-brand);font-size:22px;font-weight:760;font-variant-numeric:tabular-nums;white-space:nowrap; }
 .gg-miss-title { margin: 2px 0 8px; color: var(--gg-ink); font-size: 12px; font-weight: 680; }
 .gg-mistakes { max-height: 205px; overflow-y: auto; margin-bottom: 14px; border: 1px solid var(--gg-line); border-radius: 8px; }
 .gg-missrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--gg-line); font-size: 12px; }
@@ -283,6 +288,12 @@ h1, h2, p { margin-top: 0; }
 .gg-stage-badge { display:flex;justify-content:center;align-items:center;margin:0 auto 13px;padding:7px 12px;width:max-content;max-width:100%;border-radius:999px;background:var(--gg-brand-light);color:var(--gg-brand);border:1px solid var(--gg-brand-line);font-size:10px;font-weight:770;letter-spacing:.05em; }
 .gg-expression { min-height:76px;display:flex;align-items:center;justify-content:center;white-space:pre; }
 .gg-expression.is-hidden { color:var(--gg-subtle);letter-spacing:.1em;font-weight:630; }
+.gg-expression.is-flash:not(.is-hidden) { animation:gg-flash-in .18s ease-out both; }
+@keyframes gg-flash-in {
+  from { opacity:.1;transform:scale(1.075); }
+  to { opacity:1;transform:scale(1); }
+}
+@media(prefers-reduced-motion:reduce) { .gg-expression.is-flash { animation:none!important; } }
 .gg-memory-hint { margin:-9px 0 13px;min-height:15px;color:var(--gg-muted);font-size:10.5px;font-weight:570;text-align:center; }
 .gg-game.is-boss .gg-stage-badge { color:#91601d;background:#fff5e2;border-color:#e3ceaa; }
 .gg-game.is-boss .gg-question { border-color:#e3ceaa;background:#fffcf5; }
@@ -341,7 +352,7 @@ h1, h2, p { margin-top: 0; }
       </button>
       <button type="button" class="gg-level gg-level-boss" data-stage="4" aria-pressed="false" disabled>
         <span class="gg-level-top"><span class="gg-level-no">★ BOSS</span><span class="gg-level-state">4단계 완료 후 해금</span></span>
-        <strong>끝판왕 <span aria-hidden="true">♛</span></strong><span class="gg-level-desc">강한 문제 12개 · 더 짧게 등장 · 최대 5초</span>
+        <strong>끝판왕 <span aria-hidden="true">♛</span></strong><span class="gg-level-desc">강한 문제 12개 · 두 가지 플래시 랜덤 · 최대 5초</span>
       </button>
     </div>
     <div class="gg-sectionlabel">풀이 방식</div>
@@ -393,6 +404,7 @@ h1, h2, p { margin-top: 0; }
     <p class="gg-end-sub" id="gg-end-sub">한 세트 18문제를 다 풀었어요.</p>
     <div class="gg-end-score"><strong id="gg-score">0</strong><small>점</small><div id="gg-score-label">정답률 0%</div></div>
     <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:var(--gg-brand)">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:var(--gg-red)">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:var(--gg-orange)">0</strong><span>시간초과</span></div></div>
+    <div class="gg-end-average"><span class="gg-end-average-copy"><strong>평균 풀이 시간</strong><small>문제당 · 시간초과 포함</small></span><strong id="gg-end-average-time">0.0초</strong></div>
     <div id="gg-miss-container" hidden><div class="gg-miss-title">다시 외워볼 문제</div><div class="gg-mistakes" id="gg-mistakes"></div></div>
     <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 단계 도전 →</button><button class="gg-primary" id="gg-retry" hidden>남은 문제 다시 도전 →</button><button class="gg-secondary" id="gg-again">이 단계 다시 도전</button><button class="gg-textbtn" id="gg-change">단계 선택 · 처음으로</button></div>
   </section>
@@ -410,7 +422,14 @@ h1, h2, p { margin-top: 0; }
 
   const STAGE_SIZE=18, STAGE_COUNT=4, BOSS_INDEX=4;
   const STAGE_NAMES=['워밍업','기초 확장','집중력 테스트','최종 관문','끝판왕'];
-  const BOSS_FLASH={step:145,hold:250};
+  const BOSS_FLASH={step:145,hold:250,instantHold:850};
+  // The boss alternates between typewriter and instant-flash prompts in random order.
+  // A 12-question boss always contains six of each pattern.
+  function makeBossPatterns(count){
+    const patterns=Array.from({length:count},(_,i)=>i%2===0?'typewriter':'flash');
+    if(count%2===1&&Math.random()<0.5)patterns[count-1]='flash';
+    return shuffleValues(patterns);
+  }
   const STORE_KEY='gugudan_quest_progress_v1';
 
   const shuffle=items=>{
@@ -493,7 +512,7 @@ h1, h2, p { margin-top: 0; }
   let limit=5,answerMode='type',selectedStage=unlockedStage(),activeStage=0;
   let pool=[],answers=[],pendingMissed=[],currentIndex=0,currentChoices=[],digits='';
   let state='setup',mode='stage',deadline=0,interval=null,transition=null;
-  let revealStarted=0,revealText='',stageLimit=limit;
+  let revealStarted=0,revealText='',revealPattern='typewriter',bossPatterns=[],stageLimit=limit;
 
   function stopTimers(){
     if(interval!==null){clearInterval(interval);interval=null;}
@@ -584,11 +603,14 @@ h1, h2, p { margin-top: 0; }
     if(document.hidden)return;
     if(state==='revealing'){
       const elapsed=Math.max(0,performance.now()-revealStarted);
-      const flash=BOSS_FLASH,fullAt=Array.from(revealText).length*flash.step;
-      const letters=Math.min(Array.from(revealText).length,Math.floor(elapsed/flash.step)+1);
-      if(elapsed<fullAt+flash.hold){
-        $('gg-expression').textContent=Array.from(revealText).slice(0,letters).join('');
-        $('gg-memory-hint').textContent=elapsed<fullAt?'문제가 한 글자씩 나타납니다':'문제를 기억하세요!';
+      const flash=BOSS_FLASH,instant=revealPattern==='flash';
+      const chars=Array.from(revealText),fullAt=chars.length*flash.step;
+      const visibleUntil=instant?flash.instantHold:fullAt+flash.hold;
+      if(elapsed<visibleUntil){
+        $('gg-expression').textContent=instant?
+          revealText:chars.slice(0,Math.min(chars.length,Math.floor(elapsed/flash.step)+1)).join('');
+        $('gg-memory-hint').textContent=instant?'번쩍! 문제를 기억하세요':
+          elapsed<fullAt?'문제가 한 글자씩 나타납니다':'문제를 기억하세요!';
       }else{
         $('gg-expression').textContent='?';
         $('gg-expression').classList.add('is-hidden');
@@ -615,19 +637,20 @@ h1, h2, p { margin-top: 0; }
     $('gg-feedback').hidden=true;
     const q=pool[currentIndex], boss=activeStage===BOSS_INDEX;
     revealText=q.a+' × '+q.b;
+    revealPattern=boss?bossPatterns[currentIndex]:'typewriter';
     $('gg-expression').classList.remove('is-hidden');
+    $('gg-expression').classList.toggle('is-flash',boss&&revealPattern==='flash');
     $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
     $('gg-timer').classList.remove('urgent');
     $('gg-timer').style.setProperty('--remain','100%');
     $('gg-memory-hint').hidden=!boss;
     if(answerMode==='choice')renderChoices(q);
     if(boss){
-      // Final boss: each character appears, the full question disappears,
-      // and only then does the answering timer begin.
+      // Final boss: random typewriter or instant flash, then hide before countdown.
       state='revealing';
       revealStarted=performance.now();
-      $('gg-expression').textContent='';
-      $('gg-memory-hint').textContent='곧 문제가 나타납니다';
+      $('gg-expression').textContent=revealPattern==='flash'?revealText:'';
+      $('gg-memory-hint').textContent=revealPattern==='flash'?'번쩍! 문제를 기억하세요':'곧 문제가 나타납니다';
       $('gg-seconds-left').textContent='–';
       $('gg-timer-unit').textContent='곧 시작';
       displayInputs(false);
@@ -648,6 +671,7 @@ h1, h2, p { margin-top: 0; }
     mode=roundMode;
     pool=roundMode==='retry'?shuffle(questions):questions.map(({a,b})=>({a,b}));
     answers=[];currentIndex=0;
+    bossPatterns=activeStage===BOSS_INDEX?makeBossPatterns(pool.length):[];
     stageLimit=activeStage===BOSS_INDEX?Math.min(limit,5):limit;
     game.classList.toggle('is-boss',activeStage===BOSS_INDEX);
     $('gg-stage-badge').textContent=activeStage===BOSS_INDEX?'★ FINAL BOSS · 끝판왕':'STAGE '+String(activeStage+1).padStart(2,'0')+' · '+STAGE_NAMES[activeStage];
@@ -667,6 +691,10 @@ h1, h2, p { margin-top: 0; }
     if(state!=='playing')return;
     if(performance.now()>=deadline)timedOut=true;
     if(!timedOut&&digits==='')return;
+    // Measure the answering window, excluding any boss reveal animation.
+    // Timeouts count as the full limit and background-tab pauses are excluded.
+    const elapsedSeconds=timedOut?stageLimit:
+      Math.max(0,Math.min(stageLimit,stageLimit-(deadline-performance.now())/1000));
     state='feedback';
     if(interval!==null){clearInterval(interval);interval=null;}
     const q=pool[currentIndex],correctValue=q.a*q.b;
@@ -678,7 +706,7 @@ h1, h2, p { margin-top: 0; }
       else if(status==='wrong'&&value===Number(digits))button.classList.add('is-wrong');
       if(!timedOut&&value===Number(digits))button.setAttribute('aria-pressed','true');
     });
-    answers.push({a:q.a,b:q.b,correctValue,given:digits,status});
+    answers.push({a:q.a,b:q.b,correctValue,given:digits,status,elapsedSeconds});
     currentIndex++;updateStats();
     $('gg-expression').classList.remove('is-hidden');
     $('gg-expression').textContent=q.a+' × '+q.b;
@@ -721,6 +749,9 @@ h1, h2, p { margin-top: 0; }
     $('gg-end-correct').textContent=stats.correct;
     $('gg-end-wrong').textContent=stats.wrong;
     $('gg-end-timeout').textContent=stats.timeout;
+    const averageSeconds=answers.length?
+      answers.reduce((sum,entry)=>sum+entry.elapsedSeconds,0)/answers.length:0;
+    $('gg-end-average-time').textContent=averageSeconds.toFixed(1)+'초';
     $('gg-miss-container').hidden=missed.length===0;
     const list=$('gg-mistakes');list.replaceChildren();
     for(const q of missed){
