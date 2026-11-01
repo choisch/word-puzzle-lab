@@ -33,20 +33,20 @@
   height:730px;
   border:0;
   overflow:hidden;
-  background:#f6f8ff;
-  border-radius:18px;
+  background:#f3f2ec;
+  border-radius:10px;
 }
 .puzzlePortal .portalCard[data-game="gugudan-speed"] .portalIcon{
-  color:#ce624f;
-  border-color:#f1d6c6;
-  background:#fff1e8;
+  color:var(--ref-green-900);
+  border-color:var(--ref-green-300);
+  background:var(--ref-green-100);
 }
 @media(min-width:941px){
   .puzzlePortal .portalGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
 }
 @media(max-width:540px){
   .layout.gugudan-mode>.main{padding:0!important}
-  .gugudanFrame{border-radius:12px}
+  .gugudanFrame{border-radius:8px}
 }
 @media print{
   .layout.gugudan-mode #content.gugudanPortalContent{display:none!important}
