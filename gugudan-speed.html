@@ -695,6 +695,7 @@ h1, h2, p { margin-top: 0; }
     if(stageCleared){
       progress.cleared[activeStage]=true;
       saveProgress();
+      updateStageMap();
     }
     end.classList.toggle('is-victory',stageCleared);
     end.classList.toggle('is-boss-clear',stageCleared&&activeStage===BOSS_INDEX);
