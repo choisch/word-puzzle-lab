@@ -195,6 +195,18 @@ h1, h2, p { margin-top: 0; }
 .gg-sound { border:1px solid var(--gg-line);border-radius:7px;background:var(--gg-white);color:var(--gg-muted);padding:6px 8px;font-size:10.5px;font-weight:620;white-space:nowrap; }
 .gg-sound:hover { background:var(--gg-soft);color:var(--gg-ink); }
 .gg-sound[aria-pressed="false"] { background:var(--gg-soft);color:var(--gg-subtle); }
+.gg-sound-settings { display:grid;gap:8px;margin:0 0 16px; }
+.gg-sound-row { display:grid;grid-template-columns:64px minmax(0,1fr) 69px;align-items:center;gap:8px;padding:9px;border:1px solid var(--gg-line);border-radius:9px;background:var(--gg-white); }
+.gg-sound-row label { color:var(--gg-ink);font-size:11px;font-weight:690;white-space:nowrap; }
+.gg-sound-select { display:block;min-width:0;width:100%;height:38px;padding:0 7px;border:1px solid var(--gg-line-strong);border-radius:7px;background:var(--gg-soft);color:var(--gg-ink);font:inherit;font-size:12px; }
+.gg-sound-select:focus-visible,.gg-sound-preview:focus-visible,.gg-sound-master:focus-visible { outline:2px solid var(--gg-brand);outline-offset:2px; }
+.gg-sound-preview { min-width:0;height:38px;padding:0 4px;border:1px solid var(--gg-brand-line);border-radius:7px;background:var(--gg-brand-light);color:var(--gg-brand);font-size:11px;font-weight:730;white-space:nowrap; }
+.gg-sound-preview:hover { background:var(--gg-brand);color:var(--gg-white); }
+.gg-sound-settings-foot { display:flex;align-items:center;gap:9px;min-height:28px; }
+.gg-sound-master { flex:none;padding:5px 8px;border:1px solid var(--gg-line);border-radius:7px;background:var(--gg-white);color:var(--gg-muted);font-size:10px;font-weight:660;white-space:nowrap; }
+.gg-sound-master[aria-pressed="false"] { background:var(--gg-soft);color:var(--gg-subtle); }
+.gg-sound-settings-foot span { min-width:0;font-size:10px;line-height:1.5;color:var(--gg-muted); }
+@media(max-width:350px) { .gg-sound-row { grid-template-columns:55px minmax(0,1fr) 59px;gap:5px;padding:7px; } .gg-sound-row label { font-size:10px; } .gg-sound-select { font-size:11px;padding:0 4px; } .gg-sound-preview { font-size:10px; } .gg-sound-settings-foot span { font-size:9px; } }
 .gg-textbtn { border: 0; border-radius: 7px; padding: 7px 8px; background: transparent; color: var(--gg-muted); font-size: 10.5px; font-weight: 630; white-space: nowrap; }
 .gg-textbtn:hover { background: var(--gg-soft); color: var(--gg-ink); }
 .gg-feedback {
@@ -405,6 +417,20 @@ h1, h2, p { margin-top: 0; }
       <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
+    <div class="gg-sectionlabel">정답 · 오답 효과음</div>
+    <div class="gg-sound-settings" aria-label="정답과 오답 효과음 고르기">
+      <div class="gg-sound-row">
+        <label for="gg-correct-sound">정답 소리</label>
+        <select class="gg-sound-select" id="gg-correct-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 방귀 뿡!</option><option value="bomb">💥 폭탄 쾅!</option></select>
+        <button type="button" class="gg-sound-preview" data-preview="correct" aria-label="정답 소리 미리 듣기">▶ 듣기</button>
+      </div>
+      <div class="gg-sound-row">
+        <label for="gg-wrong-sound">오답 소리</label>
+        <select class="gg-sound-select" id="gg-wrong-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 방귀 뿡!</option><option value="bomb">💥 폭탄 쾅!</option></select>
+        <button type="button" class="gg-sound-preview" data-preview="wrong" aria-label="오답 소리 미리 듣기">▶ 듣기</button>
+      </div>
+      <div class="gg-sound-settings-foot"><button type="button" id="gg-setup-sound" class="gg-sound-master" aria-pressed="true">🔊 효과음 켜짐</button><span>소리를 꺼도 '듣기'로 미리 들어볼 수 있어요.</span></div>
+    </div>
     <p class="gg-tip" id="gg-tip">1~4단계는 문제가 계속 보입니다. 끝판왕에서만 문제가 잠깐 나왔다가 사라져요.</p>
     <button class="gg-primary" id="gg-start">1단계 도전하기 →</button>
     <div class="gg-coverage">진행 상황은 이 브라우저에 저장됩니다. <button type="button" id="gg-reset" class="gg-reset">처음부터 다시</button></div>
@@ -471,6 +497,8 @@ h1, h2, p { margin-top: 0; }
   }
   const STORE_KEY='gugudan_quest_progress_v1';
   const SOUND_KEY='gugudan_quest_sounds_v1';
+  const SOUND_CHOICES_KEY='gugudan_quest_sound_choices_v1';
+  const SOUND_OPTIONS=['chime','pop','buzz','boing','fart','bomb'];
 
   const shuffle=items=>{
     const copy=items.map(({a,b})=>({a,b}));
@@ -554,7 +582,13 @@ h1, h2, p { margin-top: 0; }
   let state='setup',mode='stage',deadline=0,interval=null,transition=null;
   let revealStarted=0,revealText='',revealPattern='typewriter',bossPatterns=[],stageLimit=limit;
   let soundOn=true, audioContext=null;
-  try{soundOn=localStorage.getItem(SOUND_KEY)!=='off';}catch(error){/* Storage may be blocked. */}
+  let correctSound='chime',wrongSound='buzz';
+  try{
+    soundOn=localStorage.getItem(SOUND_KEY)!=='off';
+    const saved=JSON.parse(localStorage.getItem(SOUND_CHOICES_KEY)||'null');
+    if(saved && SOUND_OPTIONS.includes(saved.correct))correctSound=saved.correct;
+    if(saved && SOUND_OPTIONS.includes(saved.wrong))wrongSound=saved.wrong;
+  }catch(error){/* Storage may be blocked, so keep defaults. */}
 
   function stopTimers(){
     if(interval!==null){clearInterval(interval);interval=null;}
@@ -595,8 +629,9 @@ h1, h2, p { margin-top: 0; }
     clearEffects();
     if(!isMotionReduced())game.classList.add('is-shaking');
   }
-  function getAudioContext(){
-    if(!soundOn)return null;
+  function getAudioContext(preview=false){
+    // Explicit preview clicks may play even if game sound is muted.
+    if(!soundOn&&!preview)return null;
     const Audio=window.AudioContext||window.webkitAudioContext;
     if(!Audio)return null;
     try{
@@ -623,22 +658,107 @@ h1, h2, p { margin-top: 0; }
       oscillator.stop(start+duration+.02);
     }catch(error){/* Keep the game playable without audio. */}
   }
-  function feedbackSound(correct){
-    const ctx=getAudioContext();
+  function playNoiseBurst(ctx,start,duration,volume,lowpassStart,lowpassEnd){
+    // Short filtered-noise burst for the explosion/fart texture; no external audio files.
+    try{
+      if(!ctx.createBuffer || !ctx.createBufferSource || !ctx.createBiquadFilter)return;
+      const sampleRate=ctx.sampleRate||44100;
+      const buffer=ctx.createBuffer(1,Math.max(1,Math.floor(sampleRate*duration)),sampleRate);
+      const data=buffer.getChannelData(0);
+      let brown=0;
+      for(let i=0;i<data.length;i++){
+        brown=Math.max(-1,Math.min(1,(brown+(.32*(Math.random()*2-1)))*.978));
+        data[i]=brown*.7+(Math.random()*2-1)*.3;
+      }
+      const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+      source.buffer=buffer;
+      filter.type='lowpass';
+      filter.frequency.setValueAtTime(lowpassStart,start);
+      filter.frequency.exponentialRampToValueAtTime(lowpassEnd,start+duration);
+      gain.gain.setValueAtTime(.0001,start);
+      gain.gain.linearRampToValueAtTime(volume,start+.012);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+      source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+      source.start(start);source.stop(start+duration+.01);
+    }catch(error){/* Browsers without this API still play the tone layer. */}
+  }
+  function playFart(ctx,t){
+    // A low, wobbly buzzy rasp plus filtered air gives a comic "brrrp" sound.
+    try{
+      const oscillator=ctx.createOscillator(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+      const wobble=ctx.createOscillator(),depth=ctx.createGain();
+      oscillator.type='sawtooth';
+      oscillator.frequency.setValueAtTime(116,t);
+      oscillator.frequency.exponentialRampToValueAtTime(51,t+.43);
+      wobble.type='sine';
+      wobble.frequency.setValueAtTime(22,t);
+      wobble.frequency.exponentialRampToValueAtTime(12,t+.43);
+      depth.gain.setValueAtTime(19,t);
+      filter.type='lowpass';
+      filter.frequency.setValueAtTime(465,t);
+      filter.frequency.exponentialRampToValueAtTime(160,t+.43);
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.linearRampToValueAtTime(.105,t+.025);
+      gain.gain.setValueAtTime(.083,t+.15);
+      gain.gain.exponentialRampToValueAtTime(.0001,t+.43);
+      wobble.connect(depth);depth.connect(oscillator.frequency);
+      oscillator.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+      oscillator.start(t);oscillator.stop(t+.46);
+      wobble.start(t);wobble.stop(t+.46);
+    }catch(error){playTone(ctx,t,116,51,.43,'sawtooth',.08);}
+    playNoiseBurst(ctx,t+.025,.34,.09,620,155);
+  }
+  function playBomb(ctx,t){
+    // Impact + descending bass and a wide, quickly decaying noise explosion.
+    playNoiseBurst(ctx,t,.63,.22,3200,110);
+    playTone(ctx,t,155,37,.58,'sine',.13);
+    playTone(ctx,t+.01,215,58,.27,'triangle',.055);
+    playNoiseBurst(ctx,t+.015,.18,.085,4600,760);
+  }
+  function playSelectedSound(name,preview=false){
+    if(!SOUND_OPTIONS.includes(name))return;
+    const ctx=getAudioContext(preview);
     if(!ctx)return;
     const t=ctx.currentTime+.008;
-    if(correct){
+    if(name==='chime'){
       playTone(ctx,t,460,960,.15,'sine',.065);
       playTone(ctx,t+.035,750,1120,.115,'triangle',.034);
-    }else{
+    }else if(name==='buzz'){
       playTone(ctx,t,245,205,.095,'sawtooth',.047);
       playTone(ctx,t+.16,225,180,.11,'sawtooth',.047);
+    }else if(name==='pop'){
+      playTone(ctx,t,530,165,.16,'sine',.12);
+      playTone(ctx,t+.035,410,185,.09,'triangle',.045);
+    }else if(name==='boing'){
+      playTone(ctx,t,570,195,.29,'triangle',.087);
+      playTone(ctx,t+.08,325,130,.19,'sine',.048);
+    }else if(name==='fart'){
+      playFart(ctx,t);
+    }else if(name==='bomb'){
+      playBomb(ctx,t);
     }
+  }
+  function feedbackSound(correct){
+    playSelectedSound(correct?correctSound:wrongSound);
+  }
+  function saveSoundChoices(){
+    try{localStorage.setItem(SOUND_CHOICES_KEY,JSON.stringify({correct:correctSound,wrong:wrongSound}));}
+    catch(error){/* Keep choices for the current session. */}
   }
   function updateSoundButton(){
     const button=$('gg-sound');
     button.setAttribute('aria-pressed',String(soundOn));
     button.textContent=soundOn?'🔊 효과음':'🔇 소리 끔';
+    const setupToggle=$('gg-setup-sound');
+    setupToggle.setAttribute('aria-pressed',String(soundOn));
+    setupToggle.textContent=soundOn?'🔊 효과음 켜짐':'🔇 효과음 꺼짐';
+  }
+  function setSoundEnabled(enabled){
+    soundOn=enabled;
+    try{localStorage.setItem(SOUND_KEY,soundOn?'on':'off');}
+    catch(error){/* Optional preference. */}
+    updateSoundButton();
+    if(soundOn)getAudioContext();
   }
   function showScreen(name){
     setup.hidden=name!=='setup';
@@ -934,12 +1054,23 @@ h1, h2, p { margin-top: 0; }
   $('gg-next').addEventListener('click',()=>{getAudioContext();startStage(activeStage+1);});
   $('gg-again').addEventListener('click',()=>{getAudioContext();startStage(activeStage);});
   $('gg-change').addEventListener('click',()=>showSetup(true));
-  $('gg-sound').addEventListener('click',()=>{
-    soundOn=!soundOn;
-    try{localStorage.setItem(SOUND_KEY,soundOn?'on':'off');}catch(error){/* Optional preference. */}
-    updateSoundButton();
-    if(soundOn)getAudioContext();
+  $('gg-sound').addEventListener('click',()=>setSoundEnabled(!soundOn));
+  $('gg-setup-sound').addEventListener('click',()=>setSoundEnabled(!soundOn));
+  $('gg-correct-sound').addEventListener('change',e=>{
+    const choice=e.target.value;
+    if(!SOUND_OPTIONS.includes(choice))return;
+    correctSound=choice;
+    saveSoundChoices();
   });
+  $('gg-wrong-sound').addEventListener('change',e=>{
+    const choice=e.target.value;
+    if(!SOUND_OPTIONS.includes(choice))return;
+    wrongSound=choice;
+    saveSoundChoices();
+  });
+  document.querySelectorAll('.gg-sound-preview').forEach(button=>button.addEventListener('click',()=>{
+    playSelectedSound(button.dataset.preview==='correct'?correctSound:wrongSound,true);
+  }));
   $('gg-exit').addEventListener('click',()=>{
     if(window.confirm('이번 도전을 종료하고 단계 선택으로 돌아갈까요?'))showSetup();
   });
@@ -982,6 +1113,8 @@ h1, h2, p { margin-top: 0; }
       updateTick();
     }
   });
+  $('gg-correct-sound').value=correctSound;
+  $('gg-wrong-sound').value=wrongSound;
   updateSoundButton();
   showSetup();
 })();
