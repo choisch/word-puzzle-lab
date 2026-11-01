@@ -421,12 +421,12 @@ h1, h2, p { margin-top: 0; }
     <div class="gg-sound-settings" aria-label="정답과 오답 효과음 고르기">
       <div class="gg-sound-row">
         <label for="gg-correct-sound">정답 소리</label>
-        <select class="gg-sound-select" id="gg-correct-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 하이톤 방귀 뿡!</option><option value="bomb">💥 폭탄 쾅!</option></select>
+        <select class="gg-sound-select" id="gg-correct-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 하이톤 뽀오옹~</option><option value="bomb">💥 폭탄 쾅!</option></select>
         <button type="button" class="gg-sound-preview" data-preview="correct" aria-label="정답 소리 미리 듣기">▶ 듣기</button>
       </div>
       <div class="gg-sound-row">
         <label for="gg-wrong-sound">오답 소리</label>
-        <select class="gg-sound-select" id="gg-wrong-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 하이톤 방귀 뿡!</option><option value="bomb">💥 폭탄 쾅!</option></select>
+        <select class="gg-sound-select" id="gg-wrong-sound"><option value="chime">✨ 딩동</option><option value="pop">🫧 뿅!</option><option value="buzz">⚡ 삐빅</option><option value="boing">🌀 띠용</option><option value="fart">💨 하이톤 뽀오옹~</option><option value="bomb">💥 폭탄 쾅!</option></select>
         <button type="button" class="gg-sound-preview" data-preview="wrong" aria-label="오답 소리 미리 듣기">▶ 듣기</button>
       </div>
       <div class="gg-sound-settings-foot"><button type="button" id="gg-setup-sound" class="gg-sound-master" aria-pressed="true">🔊 효과음 켜짐</button><span>소리를 꺼도 '듣기'로 미리 들어볼 수 있어요.</span></div>
@@ -683,32 +683,38 @@ h1, h2, p { margin-top: 0; }
     }catch(error){/* Browsers without this API still play the tone layer. */}
   }
   function playFart(ctx,t){
-    // High-pitched, short comic "pwoot": squeaky glide, quick flutter and airy puff.
+    // A deliberately long, high cartoon "ppooooong": bright pop, rounded hold,
+    // fluttering nasal tone and a descending "ong" tail (~0.9 seconds).
     try{
       const oscillator=ctx.createOscillator(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
       const wobble=ctx.createOscillator(),depth=ctx.createGain();
       oscillator.type='sawtooth';
-      oscillator.frequency.setValueAtTime(580,t);
-      oscillator.frequency.exponentialRampToValueAtTime(295,t+.33);
+      // Start as a high little "ppo!", stretch the vowel, then drop the ending.
+      oscillator.frequency.setValueAtTime(710,t);
+      oscillator.frequency.exponentialRampToValueAtTime(745,t+.10);
+      oscillator.frequency.exponentialRampToValueAtTime(625,t+.56);
+      oscillator.frequency.exponentialRampToValueAtTime(365,t+.87);
       wobble.type='sine';
-      wobble.frequency.setValueAtTime(33,t);
-      wobble.frequency.exponentialRampToValueAtTime(19,t+.33);
-      depth.gain.setValueAtTime(64,t);
+      wobble.frequency.setValueAtTime(12,t);
+      wobble.frequency.exponentialRampToValueAtTime(18,t+.87);
+      depth.gain.setValueAtTime(25,t);
       filter.type='bandpass';
-      filter.frequency.setValueAtTime(1100,t);
-      filter.frequency.exponentialRampToValueAtTime(560,t+.33);
+      filter.frequency.setValueAtTime(1350,t);
+      filter.frequency.exponentialRampToValueAtTime(980,t+.42);
+      filter.frequency.exponentialRampToValueAtTime(590,t+.87);
       gain.gain.setValueAtTime(.0001,t);
-      gain.gain.linearRampToValueAtTime(.095,t+.018);
-      gain.gain.setValueAtTime(.075,t+.11);
-      gain.gain.exponentialRampToValueAtTime(.0001,t+.33);
+      gain.gain.linearRampToValueAtTime(.093,t+.040);
+      gain.gain.setValueAtTime(.089,t+.24);
+      gain.gain.setValueAtTime(.076,t+.59);
+      gain.gain.exponentialRampToValueAtTime(.0001,t+.89);
       wobble.connect(depth);depth.connect(oscillator.frequency);
       oscillator.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
-      oscillator.start(t);oscillator.stop(t+.35);
-      wobble.start(t);wobble.stop(t+.35);
-    }catch(error){playTone(ctx,t,580,295,.33,'sawtooth',.075);}
-    playTone(ctx,t+.095,720,390,.19,'triangle',.048);
-    playNoiseBurst(ctx,t+.012,.22,.06,2200,690);
-    playNoiseBurst(ctx,t+.13,.1,.025,2600,1050);
+      oscillator.start(t);oscillator.stop(t+.91);
+      wobble.start(t);wobble.stop(t+.91);
+    }catch(error){playTone(ctx,t,710,365,.88,'sawtooth',.078);}
+    // Soft plosive onset and wispy, high air during the long "ooo".
+    playNoiseBurst(ctx,t,.07,.060,2600,1050);
+    playNoiseBurst(ctx,t+.12,.46,.035,1450,580);
   }
   function playBomb(ctx,t){
     // Impact + descending bass and a wide, quickly decaying noise explosion.
