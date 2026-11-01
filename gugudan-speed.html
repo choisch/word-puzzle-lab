@@ -259,6 +259,53 @@ h1, h2, p { margin-top: 0; }
   .gg-small { max-width: 60%; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration: .01ms !important; } }
+  
+/* Stage map, unlock path and flash-memory challenge (Puzzle Lab theme). */
+.gg-stage-progress { display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 16px;padding:9px 11px;border:1px solid var(--gg-brand-line);border-radius:8px;background:var(--gg-brand-light);color:var(--gg-brand);font-size:11px;font-weight:680; }
+.gg-stage-progress span:last-child { font-size:10px;opacity:.85;white-space:nowrap; }
+.gg-levels { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:19px; }
+.gg-level { min-width:0;min-height:95px;text-align:left;padding:12px 13px;border:1px solid var(--gg-line-strong);border-radius:10px;background:var(--gg-white);color:var(--gg-ink);transition:background .13s,border-color .13s,box-shadow .13s; }
+.gg-level:not(:disabled):hover { border-color:var(--gg-brand);background:var(--gg-brand-light); }
+.gg-level[aria-pressed="true"] { border-color:var(--gg-brand);box-shadow:inset 0 0 0 1px var(--gg-brand);background:var(--gg-brand-light); }
+.gg-level:disabled { cursor:not-allowed;color:var(--gg-subtle);background:var(--gg-soft);border-color:var(--gg-line); }
+.gg-level-top { display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px; }
+.gg-level-no { color:var(--gg-brand);font-size:10px;font-weight:800;letter-spacing:.08em; }
+.gg-level:disabled .gg-level-no { color:var(--gg-subtle); }
+.gg-level-state { color:var(--gg-muted);font-size:9.5px;font-weight:640;white-space:nowrap; }
+.gg-level[aria-pressed="true"] .gg-level-state,.gg-level.is-cleared .gg-level-state { color:var(--gg-brand); }
+.gg-level>strong { display:block;margin-bottom:4px;font-size:14px;font-weight:730;line-height:1.2; }
+.gg-level-desc { display:block;color:var(--gg-muted);font-size:10px;line-height:1.4; }
+.gg-level-boss { grid-column:1/-1;min-height:86px;border-color:#e3ceaa;background:#fffaf0; }
+.gg-level-boss[aria-pressed="true"] { border-color:#ad7b33;box-shadow:inset 0 0 0 1px #ad7b33;background:#fff5e2; }
+.gg-level-boss .gg-level-no,.gg-level-boss:not(:disabled) .gg-level-state { color:#91601d; }
+.gg-level-boss:disabled { background:#f8f6f0; }
+.gg-reset { border:0;background:none;color:var(--gg-muted);font:inherit;font-size:10px;text-decoration:underline;cursor:pointer;padding:1px 4px; }
+.gg-stage-badge { display:flex;justify-content:center;align-items:center;margin:0 auto 13px;padding:7px 12px;width:max-content;max-width:100%;border-radius:999px;background:var(--gg-brand-light);color:var(--gg-brand);border:1px solid var(--gg-brand-line);font-size:10px;font-weight:770;letter-spacing:.05em; }
+.gg-expression { min-height:76px;display:flex;align-items:center;justify-content:center;white-space:pre; }
+.gg-expression.is-hidden { color:var(--gg-subtle);letter-spacing:.1em;font-weight:630; }
+.gg-memory-hint { margin:-9px 0 13px;min-height:15px;color:var(--gg-muted);font-size:10.5px;font-weight:570;text-align:center; }
+.gg-game.is-boss .gg-stage-badge { color:#91601d;background:#fff5e2;border-color:#e3ceaa; }
+.gg-game.is-boss .gg-question { border-color:#e3ceaa;background:#fffcf5; }
+.gg-end.is-victory .gg-end-score { border-color:var(--gg-brand-line);background:var(--gg-brand-light); }
+.gg-end.is-boss-clear .gg-end-score { border-color:#e3ceaa;background:#fff5e2; }
+.gg-end.is-boss-clear .gg-end-score strong { color:#91601d; }
+.gg-end.is-failed .gg-end-score { background:var(--gg-soft); }
+@media(max-width:540px) {
+  .gg-levels { gap:6px;margin-bottom:15px; }
+  .gg-level { padding:10px 9px;min-height:85px; }
+  .gg-level>strong { font-size:12px; }
+  .gg-level-desc { font-size:9.5px; }
+  .gg-stage-progress { padding:8px;font-size:10px; }
+  .gg-expression { min-height:65px; }
+  .gg-memory-hint { margin:-9px 0 12px;font-size:10px; }
+}
+@media(max-width:350px) {
+  .gg-level-top { gap:3px; }
+  .gg-level-state { font-size:8.5px; }
+  .gg-level { padding:9px 7px; }
+  .gg-stage-progress span:last-child { font-size:9px; }
+}
+
   </style>
 </head>
 <body>
@@ -270,10 +317,33 @@ h1, h2, p { margin-top: 0; }
 
   <section class="gg-panel gg-setup" id="gg-setup">
     <div class="gg-hero-icon" aria-hidden="true">⚡</div>
-    <div class="gg-eyebrow">준비, 시작!</div>
-    <h1>구구단, 몇 초 안에<br>풀 수 있을까요?</h1>
-    <p class="gg-desc">첫 세트는 쉬운 문제로 시작해요. 뒤로 갈수록 조금씩 어려워지고, 각 세트에서는 랜덤으로 나옵니다. 총 72문제는 중복 없이 모두 출제돼요.</p>
-    <div class="gg-info"><div class="gg-infobox"><strong>18</strong><span>세트당 문제</span></div><div class="gg-infobox"><strong>4</strong><span>총 세트 수</span></div><div class="gg-infobox"><strong>72</strong><span>전체 문제</span></div></div>
+    <div class="gg-eyebrow">GUGUDAN QUEST</div>
+    <h1>구구단 레벨 챌린지</h1>
+    <p class="gg-desc">쉬운 1단계부터 차례로 깨보세요. 틀린 문제까지 모두 맞혀야 다음 단계가 열립니다. 4단계를 끝내면 <strong>끝판왕</strong>에 도전할 수 있어요.</p>
+    <div class="gg-stage-progress"><span id="gg-unlock-status">1단계 도전 가능</span><span id="gg-clear-count">0 / 4단계 클리어</span></div>
+    <div class="gg-sectionlabel">도전할 단계</div>
+    <div class="gg-levels" id="gg-levels" role="group" aria-label="단계 선택">
+      <button type="button" class="gg-level" data-stage="0" aria-pressed="true">
+        <span class="gg-level-top"><span class="gg-level-no">01</span><span class="gg-level-state">도전 가능</span></span>
+        <strong>워밍업</strong><span class="gg-level-desc">쉬운 곱셈 · 18문제</span>
+      </button>
+      <button type="button" class="gg-level" data-stage="1" aria-pressed="false" disabled>
+        <span class="gg-level-top"><span class="gg-level-no">02</span><span class="gg-level-state">잠김</span></span>
+        <strong>기초 확장</strong><span class="gg-level-desc">조금 더 어렵게 · 18문제</span>
+      </button>
+      <button type="button" class="gg-level" data-stage="2" aria-pressed="false" disabled>
+        <span class="gg-level-top"><span class="gg-level-no">03</span><span class="gg-level-state">잠김</span></span>
+        <strong>집중력 테스트</strong><span class="gg-level-desc">기억력을 시험해요 · 18문제</span>
+      </button>
+      <button type="button" class="gg-level" data-stage="3" aria-pressed="false" disabled>
+        <span class="gg-level-top"><span class="gg-level-no">04</span><span class="gg-level-state">잠김</span></span>
+        <strong>최종 관문</strong><span class="gg-level-desc">어려운 곱셈 · 18문제</span>
+      </button>
+      <button type="button" class="gg-level gg-level-boss" data-stage="4" aria-pressed="false" disabled>
+        <span class="gg-level-top"><span class="gg-level-no">★ BOSS</span><span class="gg-level-state">4단계 완료 후 해금</span></span>
+        <strong>끝판왕 <span aria-hidden="true">♛</span></strong><span class="gg-level-desc">강한 문제 12개 · 더 짧게 등장 · 최대 5초</span>
+      </button>
+    </div>
     <div class="gg-sectionlabel">풀이 방식</div>
     <div class="gg-modes" role="group" aria-label="답변 방식">
       <button type="button" class="gg-mode" data-answer-mode="type" aria-pressed="true"><strong>숫자 입력</strong><span>직접 답 입력 · 자동 채점</span></button>
@@ -286,12 +356,13 @@ h1, h2, p { margin-top: 0; }
       <button class="gg-limit" data-seconds="7" aria-pressed="false">7초</button>
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
-    <p class="gg-tip" id="gg-tip">숫자를 입력하면 바로 채점해요. 시간 초과는 오답이에요.</p>
-    <button class="gg-primary" id="gg-start">첫 번째 18문제 시작하기 →</button>
-    <div class="gg-coverage">18문제 × 4세트 · 쉬움 → 도전 · 72문제 중복 없음</div>
+    <p class="gg-tip" id="gg-tip">문제가 한 글자씩 나타났다가 사라져요. 기억해서 답해주세요. 시간 초과는 오답이에요.</p>
+    <button class="gg-primary" id="gg-start">1단계 도전하기 →</button>
+    <div class="gg-coverage">진행 상황은 이 브라우저에 저장됩니다. <button type="button" id="gg-reset" class="gg-reset">처음부터 다시</button></div>
   </section>
 
   <section class="gg-panel gg-game" id="gg-game" hidden>
+    <div class="gg-stage-badge" id="gg-stage-badge">STAGE 01 · 워밍업</div>
     <div class="gg-statbar">
       <div class="gg-stat good"><strong id="gg-correct">0</strong><span>정답</span></div>
       <div class="gg-stat bad"><strong id="gg-wrong">0</strong><span>오답</span></div>
@@ -301,7 +372,8 @@ h1, h2, p { margin-top: 0; }
     <div class="gg-track" aria-label="풀이 진행률"><div class="gg-fill" id="gg-progress-fill"></div></div>
     <div class="gg-question">
       <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 18</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
-      <div class="gg-expression" id="gg-expression" aria-live="polite">2 × 3</div>
+      <div class="gg-expression" id="gg-expression" aria-live="off">2 × 3</div>
+      <div class="gg-memory-hint" id="gg-memory-hint">한 글자씩 나타나는 문제를 기억하세요</div>
       <div class="gg-answer" id="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
       <div class="gg-feedback" id="gg-feedback" role="status" aria-live="polite" hidden><strong id="gg-feedback-title">정답!</strong><span id="gg-feedback-detail">잘했어요!</span></div>
     </div>
@@ -322,7 +394,7 @@ h1, h2, p { margin-top: 0; }
     <div class="gg-end-score"><strong id="gg-score">0</strong><small>점</small><div id="gg-score-label">정답률 0%</div></div>
     <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:var(--gg-brand)">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:var(--gg-red)">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:var(--gg-orange)">0</strong><span>시간초과</span></div></div>
     <div id="gg-miss-container" hidden><div class="gg-miss-title">다시 외워볼 문제</div><div class="gg-mistakes" id="gg-mistakes"></div></div>
-    <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 세트 시작하기 →</button><button class="gg-secondary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again" hidden>새 4세트 시작하기</button><button class="gg-textbtn" id="gg-change">모드·제한시간 변경 · 처음으로</button></div>
+    <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 단계 도전 →</button><button class="gg-primary" id="gg-retry" hidden>남은 문제 다시 도전 →</button><button class="gg-secondary" id="gg-again">이 단계 다시 도전</button><button class="gg-textbtn" id="gg-change">단계 선택 · 처음으로</button></div>
   </section>
 </main>
 <script>
