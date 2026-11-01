@@ -116,8 +116,8 @@
     <div class="gg-hero-icon" aria-hidden="true">⚡</div>
     <div class="gg-eyebrow">준비, 시작!</div>
     <h1>구구단, 몇 초 안에<br>풀 수 있을까요?</h1>
-    <p class="gg-desc">문제를 무작위로 풀어보세요. 같은 문제는 한 바퀴를 다 풀기 전까지 다시 나오지 않아요.</p>
-    <div class="gg-info"><div class="gg-infobox"><strong>72</strong><span>총 문제 수</span></div><div class="gg-infobox"><strong>8</strong><span>2~9단 전체</span></div><div class="gg-infobox"><strong>0</strong><span>중복 출제</span></div></div>
+    <p class="gg-desc">18문제씩 4세트로 짧게 연습해요. 72문제를 한 번 섞어서 모든 세트를 마칠 때까지 중복 없이 출제합니다.</p>
+    <div class="gg-info"><div class="gg-infobox"><strong>18</strong><span>세트당 문제</span></div><div class="gg-infobox"><strong>4</strong><span>총 세트 수</span></div><div class="gg-infobox"><strong>72</strong><span>전체 문제</span></div></div>
     <div class="gg-sectionlabel">문제당 제한시간</div>
     <div class="gg-limits" role="group" aria-label="문제당 제한시간">
       <button class="gg-limit" data-seconds="3" aria-pressed="false">3초</button>
@@ -126,8 +126,8 @@
       <button class="gg-limit" data-seconds="10" aria-pressed="false">10초</button>
     </div>
     <p class="gg-tip">시간 안에 답을 제출하지 못하면 오답으로 처리돼요.</p>
-    <button class="gg-primary" id="gg-start">72문제 시작하기 →</button>
-    <div class="gg-coverage">2×1부터 9×9까지 빠짐없이 한 번씩</div>
+    <button class="gg-primary" id="gg-start">첫 번째 18문제 시작하기 →</button>
+    <div class="gg-coverage">18문제 × 4세트 · 2×1부터 9×9까지 빠짐없이</div>
   </section>
 
   <section class="gg-panel gg-game" id="gg-game" hidden>
@@ -136,10 +136,10 @@
       <div class="gg-stat bad"><strong id="gg-wrong">0</strong><span>오답</span></div>
       <div class="gg-stat time"><strong id="gg-timeout">0</strong><span>시간초과</span></div>
     </div>
-    <div class="gg-progress-head"><span id="gg-round-label">전체 문제</span><span id="gg-progress-text">0 / 72</span></div>
+    <div class="gg-progress-head"><span id="gg-round-label">1 / 4세트</span><span id="gg-progress-text">0 / 18</span></div>
     <div class="gg-track" aria-label="풀이 진행률"><div class="gg-fill" id="gg-progress-fill"></div></div>
     <div class="gg-question">
-      <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 72</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
+      <div class="gg-qtop"><div class="gg-qmeta">지금 풀 문제<strong id="gg-question-idx">1 / 18</strong></div><div class="gg-timer" id="gg-timer" style="--remain:100%"><div class="gg-timer-inner"><div class="gg-timer-number" id="gg-seconds-left">5.0</div><div class="gg-timer-unit">남은 초</div></div></div></div>
       <div class="gg-expression" id="gg-expression" aria-live="polite">2 × 3</div>
       <div class="gg-answer" aria-label="입력한 답"><span class="gg-answer-caption">답</span><span class="gg-answer-number empty" id="gg-value">?</span></div>
       <div class="gg-feedback" id="gg-feedback" role="status" aria-live="polite" hidden><strong id="gg-feedback-title">정답!</strong><span id="gg-feedback-detail">잘했어요!</span></div>
@@ -155,12 +155,12 @@
 
   <section class="gg-panel gg-end" id="gg-end" hidden>
     <div class="gg-end-icon" id="gg-end-icon" aria-hidden="true">🏆</div>
-    <h2 id="gg-end-title">72문제 완료!</h2>
-    <p class="gg-end-sub" id="gg-end-sub">모든 구구단 문제를 빠짐없이 풀었어요.</p>
+    <h2 id="gg-end-title">1세트 완료!</h2>
+    <p class="gg-end-sub" id="gg-end-sub">한 세트 18문제를 다 풀었어요.</p>
     <div class="gg-end-score"><strong id="gg-score">0</strong><small>점</small><div id="gg-score-label">정답률 0%</div></div>
     <div class="gg-end-stats"><div><strong id="gg-end-correct" style="color:#11a47f">0</strong><span>정답</span></div><div><strong id="gg-end-wrong" style="color:#fb6973">0</strong><span>오답</span></div><div><strong id="gg-end-timeout" style="color:#e69c4a">0</strong><span>시간초과</span></div></div>
     <div id="gg-miss-container" hidden><div class="gg-miss-title">다시 외워볼 문제</div><div class="gg-mistakes" id="gg-mistakes"></div></div>
-    <div class="gg-end-actions"><button class="gg-primary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again">전체 72문제 다시 풀기</button><button class="gg-textbtn" id="gg-change">제한시간 변경 · 처음으로</button></div>
+    <div class="gg-end-actions"><button class="gg-primary" id="gg-next" hidden>다음 세트 시작하기 →</button><button class="gg-secondary" id="gg-retry" hidden>틀린 문제만 다시 풀기</button><button class="gg-secondary" id="gg-again" hidden>새 4세트 시작하기</button><button class="gg-textbtn" id="gg-change">제한시간 변경 · 처음으로</button></div>
   </section>
 </main>
 <script>
@@ -171,25 +171,30 @@
   const pad = $('gg-pad');
   const allQuestions = [];
   for (let a=2; a<=9; a++) for (let b=1; b<=9; b++) allQuestions.push({a,b});
-  const shuffle = items => { const copy=items.map(({a,b})=>({a,b})); for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];} return copy; };
-  let limit=5, pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='all', deadline=0, interval=null, transition=null;
+  const SET_SIZE=18, SET_COUNT=Math.ceil(allQuestions.length/SET_SIZE);
+  const shuffle = items => {
+    const copy=items.map(({a,b})=>({a,b}));
+    for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]];}
+    return copy;
+  };
+  let limit=5, deck=[], setIndex=0, completedSets=[], pool=[], currentIndex=0, answers=[], digits='', state='setup', mode='set', deadline=0, interval=null, transition=null;
   const stopTimers=()=>{ if(interval!==null) {clearInterval(interval); interval=null;} if(transition!==null) {clearTimeout(transition);transition=null;} };
   const showScreen = name => {setup.hidden=name!=='setup'; game.hidden=name!=='game'; end.hidden=name!=='end';};
   const calc = () => ({correct:answers.filter(x=>x.status==='correct').length, wrong:answers.filter(x=>x.status==='wrong').length, timeout:answers.filter(x=>x.status==='timeout').length});
   function updateStats() {
     const s=calc(); $('gg-correct').textContent=s.correct; $('gg-wrong').textContent=s.wrong; $('gg-timeout').textContent=s.timeout;
-    $('gg-progress-text').textContent=`${answers.length} / ${pool.length}`;
-    $('gg-progress-fill').style.width=`${pool.length ? answers.length/pool.length*100 : 0}%`;
+    $('gg-progress-text').textContent=answers.length+' / '+pool.length;
+    $('gg-progress-fill').style.width=(pool.length ? answers.length/pool.length*100 : 0)+'%';
   }
   function displayDigits() {
     $('gg-value').textContent=digits||'?';
     $('gg-value').classList.toggle('empty',!digits);
   }
   function updateClock() {
-    if(state!=='playing') return;
+    if(state!=='playing' || document.hidden) return;
     const remaining=Math.max(0,(deadline-performance.now())/1000);
     $('gg-seconds-left').textContent=remaining.toFixed(1);
-    $('gg-timer').style.setProperty('--remain',`${Math.min(100,remaining/limit*100)}%`);
+    $('gg-timer').style.setProperty('--remain',Math.min(100,remaining/limit*100)+'%');
     $('gg-timer').classList.toggle('urgent',remaining<=2);
     if (remaining<=0) submit(true);
   }
@@ -198,8 +203,8 @@
     if (currentIndex>=pool.length) { finishRound(); return; }
     state='playing'; digits=''; displayDigits();
     $('gg-feedback').hidden=true;
-    $('gg-expression').textContent=`${pool[currentIndex].a} × ${pool[currentIndex].b}`;
-    $('gg-question-idx').textContent=`${currentIndex+1} / ${pool.length}`;
+    $('gg-expression').textContent=pool[currentIndex].a+' × '+pool[currentIndex].b;
+    $('gg-question-idx').textContent=(currentIndex+1)+' / '+pool.length;
     $('gg-timer').classList.remove('urgent');
     deadline=performance.now()+limit*1000;
     updateClock();
@@ -207,13 +212,24 @@
   }
   function startRound(questions, roundMode) {
     stopTimers();
-    pool=shuffle(questions); currentIndex=0; answers=[]; mode=roundMode;
-    $('gg-round-label').textContent=roundMode==='review'?'틀린 문제 복습':'전체 문제';
+    pool=roundMode==='review'?shuffle(questions):questions.map(({a,b})=>({a,b}));
+    currentIndex=0; answers=[]; mode=roundMode;
+    $('gg-round-label').textContent=roundMode==='review'?(setIndex+1)+'세트 오답 복습':'세트 '+(setIndex+1)+' / '+SET_COUNT;
     showScreen('game'); updateStats(); nextQuestion();
+  }
+  function startSet(index) {
+    if(index<0 || index>=SET_COUNT || deck.length!==allQuestions.length) return;
+    setIndex=index;
+    startRound(deck.slice(index*SET_SIZE,(index+1)*SET_SIZE),'set');
+  }
+  function startSession() {
+    deck=shuffle(allQuestions);
+    completedSets=[];
+    startSet(0);
   }
   function submit(timedOut=false) {
     if(state!=='playing') return;
-    if (performance.now()>=deadline) timedOut=true;
+    if(performance.now()>=deadline) timedOut=true;
     if (!timedOut && digits==='') return;
     state='feedback';
     if(interval!==null){clearInterval(interval);interval=null;}
@@ -223,7 +239,7 @@
     updateStats();
     const feedback=$('gg-feedback'); feedback.hidden=false; feedback.className='gg-feedback'+(status==='correct'?'':status==='timeout'?' timeout':' miss');
     $('gg-feedback-title').textContent=status==='correct'?'정답! 🎉':status==='timeout'?'시간 초과! ⏰':'아쉬워요!';
-    $('gg-feedback-detail').textContent=status==='correct'?`${q.a} × ${q.b} = ${correctValue}`:status==='timeout'?`정답은 ${correctValue}이에요`:`정답은 ${correctValue}이에요 (입력: ${digits})`;
+    $('gg-feedback-detail').textContent=status==='correct'?q.a+' × '+q.b+' = '+correctValue:status==='timeout'?'정답은 '+correctValue+'이에요':'정답은 '+correctValue+'이에요 (입력: '+digits+')';
     $('gg-timer').style.setProperty('--remain','0%');
     $('gg-seconds-left').textContent=status==='timeout'?'0.0':$('gg-seconds-left').textContent;
     transition=setTimeout(nextQuestion,status==='correct'?700:1450);
@@ -232,22 +248,35 @@
     stopTimers(); state='end'; showScreen('end');
     const s=calc(), total=pool.length, missed=answers.filter(x=>x.status!=='correct');
     const score=Math.round(s.correct/total*100);
+    if(mode==='set') completedSets[setIndex]={correct:s.correct,wrong:s.wrong,timeout:s.timeout};
+    const allDone=setIndex===SET_COUNT-1;
     $('gg-end-icon').textContent=score===100?'🏆':score>=80?'🌟':'👏';
-    $('gg-end-title').textContent=mode==='review'?'복습 완료!':'72문제 완료!';
-    $('gg-end-sub').textContent=mode==='review'?`틀린 문제 ${total}개를 다시 풀었어요.`:'2단부터 9단까지, 72문제를 모두 풀었어요.';
-    $('gg-score').textContent=score; $('gg-score-label').textContent=`정답률 ${score}% · ${s.correct}/${total}문제`;
+    $('gg-end-title').textContent=mode==='review'?'오답 복습 완료!':(setIndex+1)+'세트 완료!';
+    if(mode==='review'){
+      $('gg-end-sub').textContent='틀렸던 '+total+'문제를 다시 풀었어요.'+(allDone?' 4세트 모두 완료한 상태입니다.':' 다음 세트로 넘어갈 수 있어요.');
+    } else if(allDone){
+      const totalCorrect=completedSets.reduce((sum,x)=>sum+(x?.correct||0),0);
+      $('gg-end-sub').textContent='4세트, 총 72문제를 모두 풀었어요! 전체 정답 '+totalCorrect+'/72 · 아래는 마지막 세트 점수입니다.';
+    } else {
+      $('gg-end-sub').textContent='전체 72문제 중 '+((setIndex+1)*SET_SIZE)+'문제 완료! 다음 세트에는 새 문제 18개가 나와요.';
+    }
+    $('gg-score').textContent=score;
+    $('gg-score-label').textContent=(mode==='review'?'복습':'이번 세트')+' 정답률 '+score+'% · '+s.correct+'/'+total+'문제';
     $('gg-end-correct').textContent=s.correct; $('gg-end-wrong').textContent=s.wrong; $('gg-end-timeout').textContent=s.timeout;
     $('gg-miss-container').hidden=missed.length===0;
     const list=$('gg-mistakes'); list.replaceChildren();
     for (const q of missed) {
       const row=document.createElement('div'); row.className='gg-missrow';
-      const left=document.createElement('strong'); left.textContent=`${q.a} × ${q.b} = ${q.correctValue}`;
-      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':`입력 ${q.given}`;
+      const left=document.createElement('strong'); left.textContent=q.a+' × '+q.b+' = '+q.correctValue;
+      const right=document.createElement('span'); right.textContent=q.status==='timeout'?'시간초과':'입력 '+q.given;
       row.append(left,right); list.append(row);
     }
+    $('gg-next').hidden=allDone;
+    $('gg-next').textContent='다음 세트 ('+(setIndex+2)+'/'+SET_COUNT+') 시작하기 →';
     $('gg-retry').hidden=missed.length===0;
-    $('gg-retry').textContent=`틀린 ${missed.length}문제 다시 풀기 →`;
+    $('gg-retry').textContent='틀린 '+missed.length+'문제 다시 풀기 →';
     $('gg-retry').onclick=()=>startRound(missed,'review');
+    $('gg-again').hidden=!allDone;
   }
   function keyPress(key) {
     if(state!=='playing') return;
@@ -260,7 +289,8 @@
     limit=Number(btn.dataset.seconds);
     document.querySelectorAll('.gg-limit').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
   }));
-  $('gg-start').addEventListener('click',()=>startRound(allQuestions,'all'));
+  $('gg-start').addEventListener('click',startSession);
+  $('gg-next').addEventListener('click',()=>startSet(setIndex+1));
   pad.addEventListener('click',e=>{const btn=e.target.closest('button[data-key]');if(btn)keyPress(btn.dataset.key);});
   window.addEventListener('keydown',e=>{
     if(state!=='playing' || e.ctrlKey || e.altKey || e.metaKey) return;
@@ -269,12 +299,11 @@
     else if(e.key==='Enter') {e.preventDefault();keyPress('ok');}
   });
   $('gg-exit').addEventListener('click',()=>{if(window.confirm('진행 중인 문제 풀이를 종료하고 처음으로 돌아갈까요?')){stopTimers();state='setup';showScreen('setup');}});
-  $('gg-again').addEventListener('click',()=>startRound(allQuestions,'all'));
+  $('gg-again').addEventListener('click',startSession);
   $('gg-change').addEventListener('click',()=>{stopTimers();state='setup';showScreen('setup');});
-  // Avoid punishing the learner if the browser/tab is hidden.
   let hiddenAt=null;
   document.addEventListener('visibilitychange',()=>{
-    if(state!=='playing') return;
+    if(state!=='playing') {hiddenAt=null; return;}
     if(document.hidden) hiddenAt=performance.now();
     else if(hiddenAt!==null) {deadline+=performance.now()-hiddenAt;hiddenAt=null;updateClock();}
   });
