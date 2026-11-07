@@ -71,6 +71,7 @@ jobs:
               ('js', './tetris-portal.js'),
               ('js', './crew-match-portal.js'),
               ('js', './crew-drop-portal.js'),
+              ('js', './crew-math-portal.js'),
           ]
 
           for kind, path in assets:
@@ -114,6 +115,7 @@ jobs:
               f'<script src="./tetris-portal.js?v={version}"></script>',
               f'<script src="./crew-match-portal.js?v={version}"></script>',
               f'<script src="./crew-drop-portal.js?v={version}"></script>',
+              f'<script src="./crew-math-portal.js?v={version}"></script>',
           ]
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 

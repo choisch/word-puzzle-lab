@@ -1,0 +1,13 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>구구단 크루 · Puzzle Lab</title><link rel="stylesheet" href="./crew-match.css"><link rel="stylesheet" href="./crew-math.css"><script defer src="./crew-math-core.js"></script><script defer src="./crew-fx.js"></script><script defer src="./crew-math.js"></script></head><body><main class="app">
+<header><a href="./">← 게임 홈</a><span>PUZZLE LAB / MATH MISSION</span></header>
+<div class="heading"><div><p class="eyebrow">LEARN, ZAP, REPEAT!</p><h1>구구단 크루<span>ϟ</span></h1><p>정답 크루를 찾으면 같은 색 크루가 전기로 팡!</p></div></div>
+<section class="setup" aria-label="연습 설정"><label for="table">연습할 단 <select id="table"><option value="2">2단</option><option value="3">3단</option><option value="4">4단</option><option value="5">5단</option><option value="6">6단</option><option value="7">7단</option><option value="8">8단</option><option value="9">9단</option><option value="all">모든 단 섞기</option></select></label><label class="hint-toggle"><input type="checkbox" id="auto-hint" checked> 힌트와 함께</label></section>
+<section class="mission"><div class="mission-top"><span id="progress">MISSION 1 / 5</span><span id="score">0점</span></div><h2 id="question" tabindex="-1">2 × 3 = ?</h2><p id="prompt">정답 숫자가 적힌 크루를 눌러주세요.</p><div class="dots" id="progress-dots" aria-hidden="true"></div></section>
+<div class="board-wrap math-board-wrap"><div class="board-top"><span>✦ PICK YOUR ANSWER</span><span id="combo">NO TIME LIMIT</span></div><div id="math-board" class="board math-board" role="group" aria-label="구구단 정답 크루 게임판"></div></div>
+<p class="status" id="status" role="status" aria-live="polite">천천히 생각해도 괜찮아요.</p>
+<button id="next-question" class="next-question" hidden>다음 문제 →</button>
+<section id="hint-panel" class="hint-panel" aria-label="구구단 힌트"><div class="hint-heading"><h2>함께 생각해봐요</h2><button id="show-hint">힌트 보기</button></div><div id="hint-content" hidden></div></section>
+<div class="toolbar"><button id="restart">↻ 새로 시작</button></div>
+<section id="summary" class="summary" hidden><p class="eyebrow">MISSION COMPLETE</p><h2>다섯 문제, 해냈어요!</h2><p id="summary-score"></p><p id="summary-message"></p><div id="review-list"></div><button id="again">한 판 더 하기</button></section>
+<section class="help"><h2>정답을 찾고, 크루를 구해보세요</h2><p>같은 색 크루에는 같은 숫자가 적혀 있어요. 정답을 찾았다면, 그중 많이 모여 있는 색을 골라보세요. 같은 색 크루가 모두 터지며 점수를 얻어요.</p><p>시간제한도, 오답 감점도 없어요. 틀린 문제는 힌트로 다시 생각해보고, 잠시 뒤에 한 번 더 연습해요. 연습 기록은 이 브라우저에 저장돼요.</p></section><footer>어몽어스 팬 게임 · 비공식 · Puzzle Lab</footer>
+</main></body></html>
