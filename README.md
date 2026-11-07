@@ -30,3 +30,15 @@ GitHub Pages: https://choisch.github.io/word-puzzle-lab/
 - 숨은 낱말: 로컬 배치 알고리즘
 
 향후 AI를 붙일 경우에는 연령, 관심사, 학습 수준에 맞는 새로운 `정답 + 힌트` 세트를 만드는 용도로만 선택적으로 사용할 수 있습니다. 퍼즐 배치 자체는 계속 로컬 알고리즘으로 처리할 수 있습니다.
+
+## 테트리스
+
+게임 홈의 테트리스 카드 또는 https://choisch.github.io/word-puzzle-lab/tetris.html 에서 실행합니다.
+
+- PC 키보드: ←/→ 이동, ↑/X 시계 방향 회전, Z 반시계 방향 회전
+- ↓ 빠르게 내리기, Space 즉시 낙하, P/Esc 일시정지, Enter 시작/재시작
+- 10×20 게임판, 7종 블록, 다음 블록과 착지 위치 표시
+- 10줄마다 레벨 및 속도 증가, 최고 점수는 브라우저에 저장
+- 창 전환 시 자동 일시정지
+
+게임 규칙 확인: `node tests/tetris.test.cjs`
