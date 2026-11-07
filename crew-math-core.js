@@ -21,5 +21,16 @@ class Session{
  if(new Set(this.board.flat()).size<6)this.board=this.makeBoard();}
  next(){if(!this.done)return false;if(this.index===4)return false;this.index++;this.done=false;this.tried=false;return true;}
 }
-const api={Session,key,valid};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CrewMath=api;
+class Clock{
+ constructor(){this.lives=3;this.duration=5000;this.rest=5000;this.deadline=0;this.running=false;}
+ get over(){return this.lives===0;}
+ remaining(now){return this.running?Math.max(0,this.deadline-now):this.rest;}
+ reset(now,run=true){this.rest=this.duration;this.running=false;if(run)this.resume(now);}
+ resume(now){if(this.over||this.running)return;this.deadline=now+this.rest;this.running=true;}
+ pause(now){this.rest=this.remaining(now);this.running=false;}
+ stop(){this.running=false;}
+ lose(){if(this.over||!this.running)return false;this.running=false;this.rest=0;this.lives--;return true;}
+}
+function nextTable(table){return Number.isInteger(table)&&table>=2&&table<9?table+1:null;}
+const api={Session,Clock,key,valid,nextTable};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CrewMath=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
