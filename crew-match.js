@@ -8,7 +8,7 @@ function tone(chain){if(!sound)return;try{audio??=new(window.AudioContext||windo
 function record(){if(score>best){best=score;try{localStorage.setItem('puzzle-lab-crew-match-best',String(best));}catch(_){}}}
 function sprite(v){return `<span class="crew" style="--suit:${colors[v]}" aria-hidden="true"><span class="pack"></span><span class="leg l"></span><span class="leg r"></span><span class="body"></span><span class="visor"></span><span class="mark">${marks[v]}</span></span>`;}
 function paint(){
- board.flat().forEach((v,i)=>{const b=tiles[i];b.innerHTML=sprite(v);b.setAttribute('aria-label',`${Math.floor(i/8)+1}행 ${i%8+1}열 ${names[v]} 크루`);b.setAttribute('aria-pressed',String(i===selected));b.classList.toggle('selected',i===selected);b.classList.remove('matched','hint');b.disabled=busy||turns===0;});
+ board.flat().forEach((v,i)=>{const b=tiles[i];b.style.setProperty('--tile-color',colors[v]);b.innerHTML=sprite(v);b.setAttribute('aria-label',`${Math.floor(i/8)+1}행 ${i%8+1}열 ${names[v]} 크루`);b.setAttribute('aria-pressed',String(i===selected));b.classList.toggle('selected',i===selected);b.classList.remove('matched','hint');b.disabled=busy||turns===0;});
  $('score').textContent=score.toLocaleString();$('moves').textContent=turns;$('best').textContent=best.toLocaleString();$('hint').disabled=busy||turns===0;
 }
 function message(text){$('status').textContent=text;}
@@ -23,9 +23,9 @@ async function exchange(a,b){
  turns--;let chain=0,total=0,gained=0;
  while(hit.length){
   chain++;total+=hit.length;const points=hit.length*10*chain;score+=points;gained+=points;record();paint();
-  hit.forEach(i=>tiles[i].classList.add('matched'));$('combo').textContent=chain>1?`${chain}× COMBO`:`+${points}`;tone(chain);
+  hit.forEach(i=>tiles[i].classList.add('matched'));CrewFX.burst($('board'),hit,8);$('combo').textContent=chain>1?`${chain}× COMBO`:`+${points}`;tone(chain);
   message(`${chain}연쇄! 크루 ${hit.length}명 · +${points.toLocaleString()}점`);
-  await wait(260);if(token!==epoch)return;
+  await wait(480);if(token!==epoch)return;
   R.refill(board,hit);paint();await wait(160);if(token!==epoch)return;
   hit=R.matches(board);
   // Keep pathological refill runs bounded without leaving unresolved matches.
