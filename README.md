@@ -43,3 +43,9 @@ GitHub Pages: https://choisch.github.io/word-puzzle-lab/
 - 창 전환 시 자동 일시정지
 
 게임 규칙 확인: `node tests/tetris.test.cjs`
+
+## 크루 매치
+
+`crew-match.html`: 어몽어스풍 크루를 가로·세로·양쪽 대각선으로 3명 이상 맞추는 퍼즐입니다. 이웃한 두 크루를 클릭/터치하거나 스와이프해 교환합니다(대각선 이웃 포함). 성공한 교환 30회, 낙하 및 연쇄 배수, 힌트, 최고 기록 저장, 선택형 효과음을 지원합니다.
+
+게임 규칙 확인: `node tests/crew-match.test.cjs`
