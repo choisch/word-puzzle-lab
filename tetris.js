@@ -6,6 +6,10 @@
   let state='ready', best=0, last=0, gravity=0, grounded=0, resets=0;
   const held=new Map();
   try { best=Math.max(0,Number(localStorage.getItem('puzzle-lab-tetris-best'))||0); } catch (_) { /* Storage can be disabled. */ }
+  function clearHeld() {
+    held.clear();
+    document.querySelectorAll('.touch-controls .is-held').forEach(button=>button.classList.remove('is-held'));
+  }
   function saveBest() {
     if(game.score<=best) return;
     best=game.score;
@@ -33,29 +37,31 @@
     drawPiece(nextCtx,m,(160-m.length*25)/2,(100-m.length*25)/2,25);
     $('score').textContent=game.score.toLocaleString();$('level').textContent=game.level;
     $('lines').textContent=game.lines;$('best').textContent=best.toLocaleString();
+    document.querySelectorAll('[data-action]').forEach(button=>button.disabled=state!=='playing');
   }
   function overlay(label,title,text,button) {
     $('overlay-label').textContent=label;$('overlay-title').textContent=title;
     $('overlay-text').textContent=text;$('play').textContent=button;$('overlay').hidden=false;
   }
   function start() {
-    game.reset();state='playing';gravity=0;grounded=0;resets=0;held.clear();
+    game.reset();state='playing';gravity=0;grounded=0;resets=0;clearHeld();
     $('overlay').hidden=true;$('pause').disabled=false;$('pause').innerHTML='일시정지 <kbd>P</kbd>';
     $('status').textContent='빈 줄을 남기지 않고 쌓아보세요.';draw();
   }
   function pause() {
     if(state==='playing') {
-      state='paused';held.clear();overlay('PAUSED','잠깐 쉬어가세요.','이어서 하려면 P 또는 Enter를 눌러주세요.','계속하기');
+      state='paused';clearHeld();overlay('PAUSED','잠깐 쉬어가세요.','계속하기 버튼을 누르면 이어서 할 수 있습니다.','계속하기');
       $('pause').innerHTML='계속하기 <kbd>P</kbd>';
     } else if(state==='paused') {
       state='playing';$('overlay').hidden=true;$('pause').innerHTML='일시정지 <kbd>P</kbd>';
     }
+    draw();
   }
   function afterLock(cleared) {
     gravity=0;grounded=0;resets=0;saveBest();
     if(cleared) $('status').textContent=cleared===4?'테트리스! 한 번에 4줄을 지웠습니다.':`${cleared}줄을 지웠습니다!`;
     if(game.over) {
-      state='over';held.clear();$('pause').disabled=true;
+      state='over';clearHeld();$('pause').disabled=true;
       overlay('GAME OVER','다시 도전해볼까요?',`${game.score.toLocaleString()}점 · ${game.lines}줄 · 레벨 ${game.level}`,'다시 시작');
       $('status').textContent='게임이 끝났습니다. Enter로 다시 시작하세요.';
     }
@@ -86,15 +92,31 @@
     action(e.code);
   });
   window.addEventListener('keyup',e=>held.delete(e.code));
-  window.addEventListener('blur',()=>{if(state==='playing')pause();held.clear();});
+  window.addEventListener('blur',()=>{if(state==='playing')pause();clearHeld();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause();});
   $('play').addEventListener('click',()=>{if(state==='paused')pause();else start();$('play').blur();});
   $('pause').addEventListener('click',()=>{pause();$('pause').blur();});
   $('restart').addEventListener('click',()=>{start();$('restart').blur();});
+  document.querySelectorAll('[data-action]').forEach(button=>{
+    const code=button.dataset.action;
+    button.addEventListener('pointerdown',e=>{
+      if(state!=='playing'||(e.pointerType==='mouse'&&e.button!==0))return;
+      e.preventDefault();button.setPointerCapture(e.pointerId);button.classList.add('is-held');
+      if(['ArrowLeft','ArrowRight','ArrowDown'].includes(code))held.set('pointer:'+e.pointerId,{code,age:0,next:160});
+      action(code);
+    });
+    const release=e=>{held.delete('pointer:'+e.pointerId);button.classList.remove('is-held');};
+    button.addEventListener('pointerup',release);
+    button.addEventListener('pointercancel',release);
+    button.addEventListener('lostpointercapture',release);
+    // Native button activation from assistive technology or a keyboard.
+    button.addEventListener('click',e=>{if(e.detail===0)action(code);});
+    button.addEventListener('contextmenu',e=>e.preventDefault());
+  });
   function frame(now) {
     const dt=Math.min(50,now-(last||now));last=now;
     if(state==='playing') {
-      for(const [code,key] of held){key.age+=dt;while(key.age>=key.next){action(code);key.next+=code==='ArrowDown'?35:50;}}
+      for(const [code,key] of held){key.age+=dt;while(key.age>=key.next){action(key.code||code);key.next+=(key.code||code)==='ArrowDown'?35:50;}}
       gravity+=dt;
       const interval=Math.max(70,800*Math.pow(.8,game.level-1));
       if(gravity>=interval){game.move(0,1);gravity=0;}

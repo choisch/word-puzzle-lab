@@ -35,6 +35,7 @@ GitHub Pages: https://choisch.github.io/word-puzzle-lab/
 
 게임 홈의 테트리스 카드 또는 https://choisch.github.io/word-puzzle-lab/tetris.html 에서 실행합니다.
 
+- 모바일: 화면 버튼으로 이동·회전·즉시 낙하, 이동 버튼 길게 누르기 지원
 - PC 키보드: ←/→ 이동, ↑/X 시계 방향 회전, Z 반시계 방향 회전
 - ↓ 빠르게 내리기, Space 즉시 낙하, P/Esc 일시정지, Enter 시작/재시작
 - 10×20 게임판, 7종 블록, 다음 블록과 착지 위치 표시
