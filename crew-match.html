@@ -1,12 +1,11 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>크루 매치 · Puzzle Lab</title><link rel="stylesheet" href="./crew-match.css"><script defer src="./crew-match-core.js"></script><script defer src="./crew-fx.js"></script><script defer src="./crew-match.js"></script></head>
-<body><main class="app">
-<header><a href="./">← 게임 홈</a><span>PUZZLE LAB / SPACE ARCADE</span><button id="sound" aria-pressed="false" title="효과음 켜기">소리 끔</button></header>
-<div class="heading"><div><p class="eyebrow">CREWMATES, LINE UP!</p><h1>크루 매치<span>✦</span></h1><p>가로도, 세로도, 대각선도. 같은 크루 3명이면 성공!</p></div><span class="orbit" aria-hidden="true">✧</span></div>
+<body class="match-app"><main class="app">
+<header><a href="./">← 게임 홈</a><h1>크루 매치</h1><button id="sound" aria-pressed="false" title="효과음 켜기">소리 끔</button></header>
+
 <section class="stats" aria-label="게임 기록"><div><span>SCORE</span><strong id="score">0</strong></div><div><span>MOVES</span><strong id="moves">30</strong></div><div><span>BEST</span><strong id="best">0</strong></div></section>
-<div class="board-wrap"><div class="board-top"><span>✦ CARGO BAY 08</span><span id="combo">READY</span></div><div id="board" class="board" role="group" aria-label="크루 매치 게임판"></div><div id="end" class="end" hidden><div><p class="eyebrow">MISSION COMPLETE</p><h2>수고하셨습니다!</h2><p id="result"></p><button id="again">다시 도전</button></div></div></div>
+<div class="board-wrap"><div class="board-top"><span>✦ CARGO BAY 08</span><span id="combo">READY</span></div><div id="board" class="board" role="group" aria-label="크루 매치 게임판"></div><div id="end" class="end" hidden><div><h2>수고하셨습니다!</h2><p id="result"></p><button id="again">다시 도전</button></div></div></div>
 <div class="toolbar"><button id="hint">✧ 힌트 보기</button><button id="restart">↻ 새 게임</button></div>
 <p id="status" class="status" role="status" aria-live="polite">크루를 하나 고른 다음, 이웃한 크루를 눌러 자리를 바꿔보세요.</p>
-<section class="help"><h2>이렇게 플레이하세요</h2><p>크루 두 명을 차례로 누르거나 옆 칸으로 밀어주세요. 대각선 이웃과도 바꿀 수 있습니다.</p><div class="rules"><span>↔ 가로 3개+</span><span>↕ 세로 3개+</span><span>⤢ 대각선 3개+</span></div><p>맞추면 사라지고 새 크루가 내려옵니다. 연쇄로 맞출수록 점수가 커집니다. 성공한 교환만 횟수가 줄어들며, 30번 안에 최고 점수에 도전하세요.</p><details><summary>키보드로도 할 수 있어요</summary><p>방향키로 칸을 이동하고 Enter 또는 Space로 선택하세요. Escape는 선택을 취소합니다.</p></details></section>
-<footer>어몽어스 팬 게임 · 비공식 · Puzzle Lab</footer>
+<details class="help"><summary>게임 방법</summary><p>크루 두 명을 차례로 누르거나 옆 칸으로 밀어주세요. 대각선 이웃과도 바꿀 수 있습니다.</p><div class="rules"><span>↔ 가로 3개+</span><span>↕ 세로 3개+</span><span>⤢ 대각선 3개+</span></div><p>맞추면 사라지고 새 크루가 내려옵니다. 연쇄로 맞출수록 점수가 커집니다. 성공한 교환만 횟수가 줄어들며, 30번 안에 최고 점수에 도전하세요.</p><details><summary>키보드로도 할 수 있어요</summary><p>방향키로 칸을 이동하고 Enter 또는 Space로 선택하세요. Escape는 선택을 취소합니다.</p></details></details><footer>어몽어스 팬 게임 · 비공식 · Puzzle Lab</footer>
 </main></body></html>
