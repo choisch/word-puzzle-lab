@@ -120,6 +120,15 @@ jobs:
           s = s.replace('</body>', '\n'.join(scripts) + '\n</body>')
 
           p.write_text(s, encoding='utf-8')
+          # Keep every game page and its assets on the same deployment revision.
+          for page in Path('.').glob('*.html'):
+              html = page.read_text(encoding='utf-8')
+              html = re.sub(
+                  r'((?:src|href)="\./[^"?]+\.(?:js|css))(?:\?v=[^"]*)?(")',
+                  lambda m: m.group(1) + '?v=' + version + m.group(2),
+                  html,
+              )
+              page.write_text(html, encoding='utf-8')
           PY
 
       - name: Configure Pages
